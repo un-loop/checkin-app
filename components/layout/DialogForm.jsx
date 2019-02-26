@@ -1,6 +1,7 @@
 import * as React from "react";
-import { DialogContent, DialogActions, Button, Grid } from "@material-ui/core";
+import { DialogContent, DialogActions,  Grid } from "@material-ui/core";
 import { ValidatorForm } from 'react-material-ui-form-validator';
+import IconButton from "../widgets/IconButton"
 import { withStyles } from "@material-ui/core/styles";
 import PropTypes from 'prop-types';
 
@@ -49,10 +50,10 @@ class DialogForm extends React.Component {
                     </DialogContent>
                     {props.actions &&
                         <DialogActions>
-                            {props.actions.map( ({callback, label, color, formAction}, index) =>
-                                <Button type={formAction} key={index} disabled={disabled} onClick={formAction ? null : callback } color={color}>
+                            {props.actions.map( ({callback, label, color, formAction, loading}, index) =>
+                                <IconButton type={formAction} key={index} disabled={disabled} loading={loading} onClick={formAction ? null : callback } color={color}>
                                     {label}
-                                </Button>
+                                </IconButton>
                             )}
                         </DialogActions>
                     }

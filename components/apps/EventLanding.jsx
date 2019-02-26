@@ -9,7 +9,6 @@ import EventDetailsForm from "../forms/EventDetailsForm";
 import EventTable from "../tables/EventTable"
 import ResponsiveDialog from "../layout/ResponsiveDialog";
 import DialogErrorTitle from "../layout/DialogErrorTitle";
-import Progress from "../widgets/Progress"
 
 class EventLanding extends React.Component {
     constructor(props) {

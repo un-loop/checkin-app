@@ -7,22 +7,29 @@ const styles = theme => ({
   progress: {
     margin: theme.spacing.unit * 2,
   },
-  container: {
+  containerFill: {
     display: "flex",
     height: "100%",
     width: "100%",
     justifyContent: "center",
     alignItems: "center",
+  },
+  containerOverlay: {
+      position: "absolute",
+      top:'50%',
+      left: '50%',
+      transform: "translate(-50%, -50%)"
   }
 });
 
 function CircularIndeterminate(props) {
-  const { classes, ...remainder } = props;
+  const { classes, variant, ...remainder } = props;
 
   return (
-    <div className={classes.container}>
+    <div className={ variant && variant.toLowerCase() == "overlay" ? classes.containerOverlay : classes.containerFill}>
       <CircularProgress className={classes.progress} {...remainder} />
-      <span>loading...</span>
+
+      {props.children}
     </div>
   );
 }

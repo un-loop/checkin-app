@@ -6,6 +6,7 @@ import TableHOC from "./Table";
 import IconButton from "../widgets/IconButton";
 
 export default (props) => {
+
     const row = (data, rowIndex) =>
     [
         data.name || "",
@@ -57,5 +58,5 @@ export default (props) => {
 
     const HocTable = TableHOC(row, header);
 
-    return (<HocTable data={props.data} title="Events" />);
+    return (<HocTable data={props.data} title="Events" loading={props.loading} />);
 }

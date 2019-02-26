@@ -133,16 +133,16 @@ class Checkin extends React.Component {
                             onCancel={this.cancelCheckin}
                             onSave={this.saveCheckin}
                             disabled={this.state.isSaving}
+                            saving={this.state.isSaving}
                         />
                     </ResponsiveDialog>
                 </Section>
-                {
+                    {
                     (this.state.loading || (this.state.latestAttendees && this.state.latestAttendees.length)) &&
                         <RecentCheckins
                             checkins={this.state.latestAttendees}
                             loading={this.state.loading}
                         />
-
                     }
             </Page>
         );

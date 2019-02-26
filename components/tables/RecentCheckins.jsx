@@ -87,7 +87,7 @@ class RecentCheckins extends React.Component{
                 <Typography variant="h4">Recent Checkins</Typography>
                 </ExpansionPanelSummary>
                 <ExpansionPanelDetails>
-                    { this.props.loading ? <Progress color="secondary" /> :
+                    { this.props.loading ? <Progress color="secondary"><Typography>loading...</Typography></Progress> :
                     <GridList cols={1} className={classes.gridList}>
                         {this.props.checkins.map((object, i) => (
                             <GridListTile className={classes.item} key={object.name + object.time} style={{ height: 'auto', padding: 'auto' }}>

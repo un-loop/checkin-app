@@ -42,7 +42,7 @@ class CheckinDetailsForm extends React.Component {
 
     render() {
 
-        const {onCancel, onSave, eventId, attendee, ...props} = this.props;
+        const {onCancel, onSave, eventId, attendee, saving, ...props} = this.props;
 
         const actions = [
             {
@@ -53,7 +53,8 @@ class CheckinDetailsForm extends React.Component {
             {
                 label: "Done",
                 formAction: "submit",
-                color: "primary"
+                color: "primary",
+                loading: saving
             }
         ];
 

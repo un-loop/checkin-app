@@ -91,7 +91,7 @@ export default (row, header, noData) => {
                     </TableBody>
                 </Table>
                 {!props.loading && (!props.data || !props.data.length) && noData(classes.noData)}
-                {props.loading && <Progress color="secondary" />}
+                {props.loading && <Progress color="secondary"><Typography>loading...</Typography></Progress>}
             </div>
         );
     }
