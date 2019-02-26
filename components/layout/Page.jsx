@@ -7,7 +7,8 @@ const styles = (theme) => ({
     layout: {
         width: "auto",
         maxWidth: 1400,
-        margin: "auto"
+        margin: "auto",
+        color: theme.palette.common.black
     }
 });
 

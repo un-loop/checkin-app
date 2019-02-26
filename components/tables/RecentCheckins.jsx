@@ -8,6 +8,7 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import Progress from "../widgets/Progress";
 
 const styles = (theme) => ({
     root: {
@@ -80,15 +81,15 @@ const EventEntry = withStyles(styles)(entry);
 class RecentCheckins extends React.Component{
     render() {
         const { classes } = this.props;
-        const { children, ...props } = this.props;
         return (
             <ExpansionPanel className={classes.root} defaultExpanded={true}>
                 <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography variant="h4">Recent Checkins</Typography>
                 </ExpansionPanelSummary>
                 <ExpansionPanelDetails>
+                    { this.props.loading ? <Progress color="secondary" /> :
                     <GridList cols={1} className={classes.gridList}>
-                        {props.checkins.map((object, i) => (
+                        {this.props.checkins.map((object, i) => (
                             <GridListTile className={classes.item} key={object.name + object.time} style={{ height: 'auto', padding: 'auto' }}>
                                 <span>{object.name}</span>
                                 <span color="primary" className={classes.span}>{timeAgo(object.checkin)}</span>
@@ -97,6 +98,7 @@ class RecentCheckins extends React.Component{
                         ))}
 
                     </GridList>
+                    }
                 </ExpansionPanelDetails>
         </ExpansionPanel>
 

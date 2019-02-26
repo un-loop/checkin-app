@@ -9,6 +9,7 @@ import EventDetailsForm from "../forms/EventDetailsForm";
 import EventTable from "../tables/EventTable"
 import ResponsiveDialog from "../layout/ResponsiveDialog";
 import DialogErrorTitle from "../layout/DialogErrorTitle";
+import Progress from "../widgets/Progress"
 
 class EventLanding extends React.Component {
     constructor(props) {
@@ -88,7 +89,7 @@ class EventLanding extends React.Component {
                                         onClick={() => {
                                             this.setState({ editing: true });
                                         }}
-                                        disabled={this.state.loadError && true}
+                                        disabled={this.state.loading || this.state.loadError}
                                     >
                                         create event
                                     </Button>
@@ -100,6 +101,7 @@ class EventLanding extends React.Component {
                                 data={this.state.events}
                                 launchCheckIn={this.launchCheckin}
                                 editEvent={this.editEvent}
+                                loading={this.state.loading}
                             />
                         </Grid>
                     </Grid>

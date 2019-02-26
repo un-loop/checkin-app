@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Table, TableBody, TableRow, TableCell, Typography, TableHead } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
+import Progress from "../widgets/Progress";
 
 const styles = (theme) =>({
     layout: {
@@ -86,10 +87,11 @@ export default (row, header, noData) => {
                         </TableHead>
                     }
                     <TableBody>
-                        {props.data && props.data.map(renderRow(row))}
+                        {!props.loading && props.data && props.data.map(renderRow(row))}
                     </TableBody>
                 </Table>
-                {(!props.data || !props.data.length) && noData(classes.noData)}
+                {!props.loading && (!props.data || !props.data.length) && noData(classes.noData)}
+                {props.loading && <Progress color="secondary" />}
             </div>
         );
     }

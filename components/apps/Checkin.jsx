@@ -15,39 +15,49 @@ class Checkin extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = { attendee: "", event: { name: ""}, isCheckin: false  };
+        this.state = { loading: true, attendee: "", event: { name: ""}, isCheckin: false  };
         this.checkin = this.checkin.bind(this);
         this.saveCheckin = this.saveCheckin.bind(this);
         this.cancelCheckin = this.cancelCheckin.bind(this);
         this.promptChanged = this.promptChanged.bind(this);
         this.handleClose = this.handleClose.bind(this);
+        this.refreshLatest = this.refreshLatest.bind(this);
     }
 
     componentDidMount() {
-        //todo: loading status
         axios
             .get(`/api/events/${this.props.eventId}`)
             .then(response => {
                 this.setState({ event: response.data });
-                this.refreshLatest();
             })
             .catch(() => {
                 this.setState({
+                        loading: false,
                         loadError: {
                         message:"Failed to retreive event, please reload",
                         errorKey: Date.now()
                     }
                 });
-            });
+            }).then(this.refreshLatest);
     }
 
     refreshLatest() {
+        if (!this.state.loading) this.setState({loading: true});
+
         return axios
             .get(
                 `/api/events/${this.props.eventId}/attendees/?top=${this.props.showLast}&key=${
                     this.props.eventId
                 }`
-            )
+            ).catch(() => {
+                this.setState({
+                    loading: false,
+                    loadError: {
+                        message:"Failed to retreive checkins, please reload",
+                        errorKey: Date.now()
+                    }
+                })
+            })
             .then(response => {
                 let records = (response.data)
                     .slice(0, this.props.showLast)
@@ -55,15 +65,7 @@ class Checkin extends React.Component {
                         return {name: value.name, checkin: value.checkin};
                     });
 
-                this.setState({ latestAttendees: records });
-            })
-            .catch(() => {
-                this.setState({
-                    loadError: {
-                    message:"Failed to retreive checkins, please reload",
-                    errorKey: Date.now()
-                }
-            });
+                this.setState({ loading: false, latestAttendees: records });
             });
     }
 
@@ -134,9 +136,11 @@ class Checkin extends React.Component {
                         />
                     </ResponsiveDialog>
                 </Section>
-                {this.state.latestAttendees && this.state.latestAttendees.length &&
+                {
+                    (this.state.loading || (this.state.latestAttendees && this.state.latestAttendees.length)) &&
                         <RecentCheckins
                             checkins={this.state.latestAttendees}
+                            loading={this.state.loading}
                         />
 
                     }
