@@ -21,7 +21,7 @@ exports.schema =  {
 
 exports.key = "eventId";
 
-exports.index = function *(next){
+exports.index = function *(next) {
     yield next;
     this.body = this.dbQuery ?
         yield events.query(this.dbQuery.isOrdered ? this.dbQuery : this.dbQuery.order(true)) :
