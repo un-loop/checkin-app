@@ -12,7 +12,8 @@ const style = (theme) => ({
         width: "100%",
         display: "flex",
         alignItems: "center",
-        justifyContent: "space-between"
+        justifyContent: "space-between",
+        height: "100%"
     },
     errorContained: {
         "& > div": {
@@ -29,6 +30,9 @@ const style = (theme) => ({
         left: 0,
         bottom: 0,
         right: 0
+    },
+    wrapper: {
+        height: "100%"
     }
 });
 
@@ -47,7 +51,7 @@ class ErrorMessage extends React.Component {
         const { classes, variant } = this.props;
 
         return (
-                <Collapse in={!this.state.dismissed} className={variant && variant.toLowerCase() == "full" ? classes.errorFull : classes.errorContained} >
+                <Collapse classes={{wrapper: classes.wrapper}} in={!this.state.dismissed} className={variant && variant.toLowerCase() == "full" ? classes.errorFull : classes.errorContained} >
                     <div className={classes.error}>
                         <span>
                             <strong>
