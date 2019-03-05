@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Table, TableBody, TableRow, TableCell, Typography, TableHead } from "@material-ui/core";
+import { Table, TableBody, TableRow, TableCell, Typography, TableHead, TablePagination } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
 import Progress from "../widgets/Progress";
 
@@ -70,31 +70,106 @@ const defaultNoData = (className) =>
 export default (row, header, noData) => {
     if (!noData) noData = defaultNoData;
 
-    const table = (props) => {
-        const {classes} = props;
+    class DecoratedTable extends React.Component {
+        constructor(props) {
+            super(props)
+            let page = this.props.page ? this.props.page : 0;
+            let rowsPerPage = this.props.rowsPerPage ? this.props.rowsPerPage : 5;
 
-        return (
-            <div className={classes.layout}>
-                {props.title &&
-                    <Typography className={classes.title} variant="h6" color="inherit" noWrap>{props.title}</Typography>
-                }
-                <Table>
-                    {header &&
-                        <TableHead>
-                            <TableRow className={classes.header}>
-                                {header().map(renderCell)}
-                            </TableRow>
-                        </TableHead>
+            this.state = { page: page, rowsPerPage: rowsPerPage, sortField: this.props.sortField, sortAscending: this.props.sortAscending && true };
+
+            this.handleChangeRowsPerPage = this.handleChangeRowsPerPage.bind(this);
+            this.handleChangePage = this.handleChangePage.bind(this);
+            this.dataCompare = this.dataCompare.bind(this);
+            this.getDataSlice = this.getDataSlice.bind(this);
+
+        }
+
+        handleChangeRowsPerPage(e) {
+            this.setState( { rowsPerPage: e.target.value });
+            this.props.onDataChange && this.props.onDataChange(this.state.page, e.target.value, this.state.sortField, this.state.sortAscending);
+        }
+
+        handleChangePage(e) {
+            this.setState( { page: e.target.value });
+            this.props.onDataChange && this.props.onDataChange(e.target.value, this.state.rowsPerPage, this.state.sortField, this.state.sortDir);
+        }
+
+        stableSort(array, cmp) {
+            const stabilizedThis = array.map((el, index) => [el, index]);
+            stabilizedThis.sort((a, b) => {
+              const order = cmp(a[0], b[0]);
+              if (order !== 0) return order;
+              return a[1] - b[1];
+            });
+            return stabilizedThis.map(el => el[0]);
+        }
+
+        dataCompare(first, second) {
+            if (first === second) return 0;
+
+            let cmp = 1;
+            if (first < second) cmp = -1;
+            if (!this.state.sortAscending) cmp *= -1;
+            return cmp;
+        }
+
+        getDataSlice() {
+            if (this.props.onDataChange || !this.props.data) return this.props.data;
+
+            let data = this.props.data;
+
+            if (this.state.sortField) {
+                data = stableSort(data, dataCompare);
+            } else if (!this.state.sortAscending) {
+                data = data.map(i => i).reverse();
+            }
+
+            return data.slice((this.state.page) * this.state.rowsPerPage, (this.state.page + 1) * this.state.rowsPerPage);
+        }
+
+        render() {
+            const {classes} = this.props;
+            const data = this.getDataSlice();
+
+            return (
+                <div className={classes.layout}>
+                    {this.props.title &&
+                        <Typography className={classes.title} variant="h6" color="inherit" noWrap>{this.props.title}</Typography>
                     }
-                    <TableBody>
-                        {!props.loading && props.data && props.data.map(renderRow(row))}
-                    </TableBody>
-                </Table>
-                {!props.loading && (!props.data || !props.data.length) && noData(classes.noData)}
-                {props.loading && <Progress color="secondary"><Typography>loading...</Typography></Progress>}
-            </div>
-        );
+                    <Table>
+                        {header &&
+                            <TableHead>
+                                <TableRow className={classes.header}>
+                                    {header().map(renderCell)}
+                                </TableRow>
+                            </TableHead>
+                        }
+                        <TableBody>
+                            {!this.props.loading && data && data.map(renderRow(row))}
+                        </TableBody>
+                    </Table>
+                    {!this.props.loading && (!data || !data.length) && noData(classes.noData)}
+                    {this.props.loading && <Progress color="secondary"><Typography>loading...</Typography></Progress>}
+                    <TablePagination
+                        rowsPerPageOptions={[5, 10, 25]}
+                        component="div"
+                        count={data ? data.length : 0}
+                        rowsPerPage={this.state.rowsPerPage}
+                        page={this.state.page}
+                        backIconButtonProps={{
+                            'aria-label': 'Previous Page',
+                        }}
+                        nextIconButtonProps={{
+                            'aria-label': 'Next Page',
+                        }}
+                        onChangePage={this.handleChangePage}
+                        onChangeRowsPerPage={this.handleChangeRowsPerPage}
+                        />
+                </div>
+            );
+        }
     }
 
-    return withStyles(styles)(table);
+    return withStyles(styles)(DecoratedTable);
 }

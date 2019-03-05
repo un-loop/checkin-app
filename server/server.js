@@ -13,8 +13,8 @@ const bodyMiddleware = wrapper(body()); //need to wrap because koa-resource-rout
                                         //middleware, whereas koa-bodyparser provides an async pattern
 const queryMiddleware = wrapper(query());
 const decodeMiddleware = wrapper(decode());
-const events = new Resource('events', bodyMiddleware, queryMiddleware, decodeMiddleware, require('./resources/events'));
-const attendees = new Resource('attendees', bodyMiddleware, queryMiddleware, decodeMiddleware, require('./resources/attendees'));
+const events = new Resource('events', bodyMiddleware,decodeMiddleware, queryMiddleware, require('./resources/events'));
+const attendees = new Resource('attendees', bodyMiddleware, decodeMiddleware,queryMiddleware, require('./resources/attendees'));
 events.add(attendees);
 
 const koaApi = new koa();
