@@ -1,5 +1,6 @@
 import * as React from "react";
-import { withStyles } from "@material-ui/core";
+import { withStyles, Link } from "@material-ui/core";
+import Renew from "@material-ui/icons/Autorenew"
 import Dismiss from "@material-ui/icons/HighlightOff";
 import Collapse from '@material-ui/core/Collapse';
 import PropTypes from 'prop-types';
@@ -33,6 +34,13 @@ const style = (theme) => ({
     },
     wrapper: {
         height: "100%"
+    },
+    retry: {
+        marginLeft: theme.spacing.unit,
+        cursor: "pointer"
+    },
+    retryIcon: {
+        transform: "translateY(25%)"
     }
 });
 
@@ -47,6 +55,12 @@ class ErrorMessage extends React.Component {
         this.setState({dismissed: true});
     }
 
+    onRetry(e) {
+        e.preventDefault();
+        this.setState({dismissed: true});
+        this.props.retry();
+    }
+
     render() {
         const { classes, variant } = this.props;
 
@@ -57,6 +71,12 @@ class ErrorMessage extends React.Component {
                             <strong>
                                 Error: {this.props.children}
                             </strong>
+                            {this.props.retry &&
+                                <Link className={classes.retry} onClick={ this.onRetry.bind(this) }>
+                                    retry
+                                    <Renew className={classes.retryIcon} fontSize="inherit" />
+                                </Link>
+                            }
                         </span>
                         <Dismiss
                             onClick={ this.onDismiss.bind(this) }
@@ -68,7 +88,8 @@ class ErrorMessage extends React.Component {
 }
 
 ErrorMessage.propTypes = {
-    children: PropTypes.node.isRequired
+    children: PropTypes.node.isRequired,
+    variant: PropTypes.string
 }
 
 export default withStyles(style)(ErrorMessage);

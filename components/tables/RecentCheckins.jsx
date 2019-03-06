@@ -64,20 +64,6 @@ const styles = (theme) => ({
     }
 });
 
-class entry extends React.Component {
-    render() {
-        const { classes } = this.props;
-        return (
-            <li className={classes.li}>
-                {this.props.name}
-                <span className={classes.span}>{timeAgo(this.props.checkin)}</span>
-            </li>
-        );
-    }
-}
-
-const EventEntry = withStyles(styles)(entry);
-
 class RecentCheckins extends React.Component{
     render() {
         const { classes } = this.props;
@@ -101,8 +87,6 @@ class RecentCheckins extends React.Component{
                     }
                 </ExpansionPanelDetails>
         </ExpansionPanel>
-
-
         );
     }
 }

@@ -41,7 +41,7 @@ class EventDetailsForm extends React.Component {
     }
 
     render() {
-        const {onCancel, onSave, ...props} = this.props;
+        const {onCancel, onSave, saving, ...props} = this.props;
 
         const actions = [
             {
@@ -52,7 +52,8 @@ class EventDetailsForm extends React.Component {
             {
                 label: "Done",
                 formAction: "submit",
-                color: "primary"
+                color: "primary",
+                loading: saving
             }
         ];
 

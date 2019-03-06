@@ -36,7 +36,7 @@ class DialogForm extends React.Component {
     }
 
     render() {
-        const {disabled, classes, ...props} = this.props;
+        const {disabled, classes, actions, ...props} = this.props;
         return (
             <ValidatorForm {...props}>
                 <fieldset disabled={disabled} className={classes.fieldSet}>
@@ -48,9 +48,9 @@ class DialogForm extends React.Component {
                             {this.props.children}
                         </Grid>
                     </DialogContent>
-                    {props.actions &&
+                    {actions &&
                         <DialogActions>
-                            {props.actions.map( ({callback, label, color, formAction, loading}, index) =>
+                            {actions.map( ({callback, label, color, formAction, loading}, index) =>
                                 <IconButton type={formAction} key={index} disabled={disabled} loading={loading} onClick={formAction ? null : callback } color={color}>
                                     {label}
                                 </IconButton>

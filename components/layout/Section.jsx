@@ -26,7 +26,7 @@ const Section = (props) => {
     return (
         <Paper className={classes.layout}>
             { props.error ?
-                <ErrorMessage key={props.error}>
+                <ErrorMessage key={props.error.errorKey} retry={props.error.retry}>
                     <span>{props.error.message}</span>
                 </ErrorMessage>
             : null

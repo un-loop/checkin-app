@@ -25,20 +25,25 @@ class Checkin extends React.Component {
     }
 
     componentDidMount() {
+        this.loadEvent();
+    }
+
+    loadEvent() {
         axios
             .get(`/api/events/${this.props.eventId}`)
             .then(response => {
-                this.setState({ event: response.data });
-            })
-            .catch(() => {
+                this.setState({ event: response.data, loadError: null });
+            }).then( this.refreshLatest,
+                () => {
                 this.setState({
                         loading: false,
                         loadError: {
-                        message:"Failed to retreive event, please reload",
-                        errorKey: Date.now()
+                            message:"Failed to retreive event.",
+                            errorKey: Date.now(),
+                            retry: this.loadEvent.bind(this)
                     }
                 });
-            }).then(this.refreshLatest);
+            });
     }
 
     refreshLatest() {
@@ -49,15 +54,7 @@ class Checkin extends React.Component {
                 `/api/events/${this.props.eventId}/attendees/?top=${this.props.showLast}&key=${
                     this.props.eventId
                 }`
-            ).catch(() => {
-                this.setState({
-                    loading: false,
-                    loadError: {
-                        message:"Failed to retreive checkins, please reload",
-                        errorKey: Date.now()
-                    }
-                })
-            })
+            )
             .then(response => {
                 let records = (response.data)
                     .slice(0, this.props.showLast)
@@ -65,8 +62,19 @@ class Checkin extends React.Component {
                         return {name: value.name, checkin: value.checkin};
                     });
 
-                this.setState({ loading: false, latestAttendees: records });
-            });
+                this.setState({ loading: false, latestAttendees: records, loadError: null });
+            })
+            .catch(() => {
+                this.setState({
+                    loading: false,
+                    loadError: {
+                        message:"Failed to retreive checkins.",
+                        errorKey: Date.now(),
+                        retry: this.refreshLatest.bind(this)
+                    }
+                })
+            })
+           ;
     }
 
     checkin(e, name) {

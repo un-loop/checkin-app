@@ -22,7 +22,7 @@ const styles = (theme) => ({
 const DialogErrorTitle = (props) => (
     <DialogTitle className={props.classes.root}>
         { props.error ?
-            <ErrorMessage key={props.error.errorKey} variant="full" >
+            <ErrorMessage key={props.error.errorKey} retry={props.error.retry} variant="full" >
                 <span>
                     {props.error.message}
                 </span>

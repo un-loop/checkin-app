@@ -27,39 +27,37 @@ class EventLanding extends React.Component {
     }
 
     refreshLatest() {
+        if (!this.state.loading) this.setState( {loading: true });
+
         return axios
             .get('/api/events')
             .then(response => {
                 let records = (response.data)
                     .map( ({name, start, eventId, started }) => ({ name, start, eventId, started }));
 
-                this.setState({ events: records, loading: false });
+                this.setState({ events: records, loading: false, loadError: null });
             })
             .catch(() => {
-                this.setState({ loadError: "Failed to retrieve events.", loading: false });
+                this.setState({ loadError: { message: "Failed to retrieve events.", errorKey: Date.now(), retry: this.refreshLatest.bind(this)}, loading: false });
             });
     }
 
     async saveEvent(detail) {
-        this.setState({ saving: true });
+        this.setState({ isSaving: true });
 
-        try {
-            if (detail.eventId) {
-                await axios.put(`/api/events/${detail.eventId}`, detail);
-            } else {
-                await axios.post(`/api/events`, detail);
+        let action = detail.eventId ?
+            axios.put(`/api/events/${detail.eventId}`, detail) :
+            axios.post(`/api/events`, detail);
+
+        action.then(
+            () => {
+                this.setState({ saveError: null, isSaving: false, editing: false});
+                this.refreshLatest();
+            },
+            (err) => {
+                this.setState({ saveError: {message: err.message, errorKey: Date.now() }, isSaving: false });
             }
-
-            this.setState({ saveError: null, saving: false, editing: false});
-        } catch(err) {
-            this.setState( (state) => (
-                    { saveError: {message: err.message, errorKey: Date.now() }, saving: false }
-                )
-            );
-        } finally {
-        }
-
-        await this.refreshLatest();
+        );
     }
 
     launchCheckin(eventId) {
@@ -77,7 +75,7 @@ class EventLanding extends React.Component {
     render() {
         return (
             <Page title={"Unloop Events"}>
-                <Section error={ this.state.loadError ? { message: this.state.loadError } : null }>
+                <Section error={ this.state.loadError }>
                     <Grid container direction="column" justify="flex-start">
                         <Grid item>
                             <Grid container justify="flex-end">
@@ -88,7 +86,7 @@ class EventLanding extends React.Component {
                                         onClick={() => {
                                             this.setState({ editing: true });
                                         }}
-                                        disabled={this.state.loading || this.state.loadError}
+                                        disabled={this.state.loading || (this.state.loadError && true) }
                                     >
                                         create event
                                     </Button>
@@ -118,6 +116,7 @@ class EventLanding extends React.Component {
                         onSubmit={this.saveEvent}
                         disabled={this.state.isSaving}
                         event={this.state.editEvent}
+                        saving={this.state.isSaving}
                     />
                 </ResponsiveDialog>
             </Page>
