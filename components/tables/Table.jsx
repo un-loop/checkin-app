@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Table, TableBody, TableRow, TableCell, Typography, TableHead, TablePagination } from "@material-ui/core";
+import { Table, TableBody, TableRow, TableCell, Typography, TableHead, TablePagination, TableSortLabel, Tooltip } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
 import Progress from "../widgets/Progress";
 
@@ -47,18 +47,30 @@ const styles = (theme) =>({
         [theme.breakpoints.up("sm")]: {
             marginBottom: theme.spacing.unit
         }
+    },
+    sortHeader: {
+        width: "100%"
     }
 });
 
-const renderCell = (cell, cellIndex) => (
-    <TableCell key={cellIndex}>
-        { typeof cell == "function" ? cell.apply(this, cellIndex) : cell }
-    </TableCell>
-);
 
-const renderRow = (row) => (rowData, rowIndex) => (
+const renderCell = (col) => (cell, cellIndex) => {
+    let contents =typeof cell == "function" ?
+        cell.apply(this, cellIndex) : cell;
+
+    return (
+        <TableCell key={cellIndex}
+                   align={col.numeric ? 'right' : 'left'}
+                   padding={col.disablePadding ? 'none' : 'default'}
+                   sortDirection={col.sortDirection}>
+            {contents}
+        </TableCell>
+    );
+};
+
+const renderRow = (row, cols) => (rowData, rowIndex) => (
     <TableRow key={rowIndex}>
-        {row(rowData, rowIndex).map(renderCell)}
+        {row(rowData, rowIndex).map( (cell, cellIndex) => renderCell(cols ? cols[cellIndex] : {})(cell, cellIndex))}
     </TableRow>
 );
 
@@ -66,6 +78,25 @@ const defaultNoData = (className) =>
     <div className={className}>
         <strong>No Data</strong>
     </div>
+
+const stableSort = (array, sortField, cmp) => {
+    const stabilizedThis = array.map((el, index) => [el, index]);
+    stabilizedThis.sort((a, b) => {
+      const order = cmp(a[0][sortField], b[0][sortField]);
+      if (order !== 0) return order;
+      return a[1] - b[1];
+    });
+    return stabilizedThis.map(el => el[0]);
+}
+
+const dataCompare = (sortAscending) => (first, second) => {
+    if (first === second) return 0;
+
+    let cmp = 1;
+    if (first < second) cmp = -1;
+    if (!sortAscending) cmp *= -1;
+    return cmp;
+}
 
 export default (row, header, noData) => {
     if (!noData) noData = defaultNoData;
@@ -80,9 +111,9 @@ export default (row, header, noData) => {
 
             this.handleChangeRowsPerPage = this.handleChangeRowsPerPage.bind(this);
             this.handleChangePage = this.handleChangePage.bind(this);
-            this.dataCompare = this.dataCompare.bind(this);
             this.getDataSlice = this.getDataSlice.bind(this);
-
+            this.getSortChangeHandler = this.getSortChangeHandler.bind(this);
+            this.renderHeader = this.renderHeader.bind(this);
         }
 
         handleChangeRowsPerPage(e) {
@@ -90,28 +121,23 @@ export default (row, header, noData) => {
             this.props.onDataChange && this.props.onDataChange(this.state.page, e.target.value, this.state.sortField, this.state.sortAscending);
         }
 
-        handleChangePage(e) {
-            this.setState( { page: e.target.value });
+        handleChangePage(e, page) {
+            this.setState( { page: page });
             this.props.onDataChange && this.props.onDataChange(e.target.value, this.state.rowsPerPage, this.state.sortField, this.state.sortDir);
         }
 
-        stableSort(array, cmp) {
-            const stabilizedThis = array.map((el, index) => [el, index]);
-            stabilizedThis.sort((a, b) => {
-              const order = cmp(a[0], b[0]);
-              if (order !== 0) return order;
-              return a[1] - b[1];
-            });
-            return stabilizedThis.map(el => el[0]);
-        }
-
-        dataCompare(first, second) {
-            if (first === second) return 0;
-
-            let cmp = 1;
-            if (first < second) cmp = -1;
-            if (!this.state.sortAscending) cmp *= -1;
-            return cmp;
+        getSortChangeHandler(name, defaultDirection) {
+            return (e) => {
+                e.preventDefault();
+                this.setState((state) => (
+                    {
+                        sortField: name,
+                        sortAscending: state.sortField !== name ?
+                            defaultDirection !== "desc" :
+                            !state.sortAscending
+                    })
+                )
+            }
         }
 
         getDataSlice() {
@@ -120,7 +146,7 @@ export default (row, header, noData) => {
             let data = this.props.data;
 
             if (this.state.sortField) {
-                data = stableSort(data, dataCompare);
+                data = stableSort(data, this.state.sortField, dataCompare(this.state.sortAscending));
             } else if (!this.state.sortAscending) {
                 data = data.map(i => i).reverse();
             }
@@ -128,9 +154,28 @@ export default (row, header, noData) => {
             return data.slice((this.state.page) * this.state.rowsPerPage, (this.state.page + 1) * this.state.rowsPerPage);
         }
 
+        renderHeader(getSortChangeHandler, headerClass) {
+            return (col, cellIndex) => {
+                let contents = (col.isSortable) ?
+                        <Tooltip title="Sort"
+                                placement={col.numeric ? 'bottom-end' : 'bottom-start'}
+                                enterDelay={300}>
+                            <TableSortLabel classes={{root: headerClass}}
+                                active={this.state.sortField === col.name}
+                                direction={this.state.sortAscending ? "asc" : "desc"}
+                                onClick={getSortChangeHandler(col.name, col.sortDirection)} >
+                                {col.label}
+                            </TableSortLabel>
+                        </Tooltip>
+                    : col.label;
+                return renderCell(col)(contents, cellIndex);
+            }
+        }
+
         render() {
             const {classes} = this.props;
             const data = this.getDataSlice();
+            const cols = header ? header() : null;
 
             return (
                 <div className={classes.layout}>
@@ -138,15 +183,15 @@ export default (row, header, noData) => {
                         <Typography className={classes.title} variant="h6" color="inherit" noWrap>{this.props.title}</Typography>
                     }
                     <Table>
-                        {header &&
+                        {cols &&
                             <TableHead>
                                 <TableRow className={classes.header}>
-                                    {header().map(renderCell)}
+                                    {cols.map(this.renderHeader(this.getSortChangeHandler, classes.sortHeader))}
                                 </TableRow>
                             </TableHead>
                         }
                         <TableBody>
-                            {!this.props.loading && data && data.map(renderRow(row))}
+                            {!this.props.loading && data && data.map(renderRow(row, cols))}
                         </TableBody>
                     </Table>
                     {!this.props.loading && (!data || !data.length) && noData(classes.noData)}
@@ -154,7 +199,7 @@ export default (row, header, noData) => {
                     <TablePagination
                         rowsPerPageOptions={[5, 10, 25]}
                         component="div"
-                        count={data ? data.length : 0}
+                        count={this.props.data ? this.props.data.length : 0}
                         rowsPerPage={this.state.rowsPerPage}
                         page={this.state.page}
                         backIconButtonProps={{

@@ -51,12 +51,12 @@ export default (props) => {
     ];
 
     const header = () => [
-        "Name",
-        "Date",
-        ""
+        { label: "Name", name: "name", isSortable: true },
+        { label: "Date", name: "start", isSortable: true },
+        { label: "" }
     ];
 
     const HocTable = TableHOC(row, header);
 
-    return (<HocTable data={props.data} onDataChange={props.onDataChange} title="Events" loading={props.loading} />);
+    return (<HocTable data={props.data} onDataChange={props.onDataChange} sortField="start" sortAscending={false} title="Events" loading={props.loading} />);
 }
