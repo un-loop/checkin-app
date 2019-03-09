@@ -1,7 +1,6 @@
 import * as React from "react";
 import axios from "axios";
 import { Button, Grid } from "@material-ui/core";
-import { MuiThemeProvider } from "@material-ui/core/styles";
 import Theme from "../themes/unloop";
 import Page from "../layout/Page";
 import Section from "../layout/Section";
@@ -9,6 +8,7 @@ import EventDetailsForm from "../forms/EventDetailsForm";
 import EventTable from "../tables/EventTable"
 import ResponsiveDialog from "../layout/ResponsiveDialog";
 import DialogErrorTitle from "../layout/DialogErrorTitle";
+import { ProviderWrapper } from "../providers";
 
 class EventLanding extends React.Component {
     constructor(props) {
@@ -124,10 +124,10 @@ class EventLanding extends React.Component {
     }
 }
 
-// Keep MuiThemeProvider outside of a control that changes state
+// Keep providers outside of a control that changes state
 // so that the theme doesn't re-render
 export default (props) =>
-        <MuiThemeProvider theme={Theme}>
-            <EventLanding {...props} />
-        </MuiThemeProvider>
+    <ProviderWrapper>
+        <EventLanding {...props} />
+    </ProviderWrapper>
 

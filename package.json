@@ -3,6 +3,13 @@
   "version": "1.0.0",
   "description": "Checkin App for Unloop events",
   "main": "./server/server.js",
+  "config": {
+    "environment": "development",
+    "port": "3000",
+    "dynamoEndpoint": "http://localhost:8000",
+    "dynamoRegion": "us-west-2",
+    "saltRounds": 10
+  },
   "scripts": {
     "build": "webpack --config client/webpack.config.js",
     "build:watch": "nodemon --watch client --watch components --ignore *bundle.js --ignore *bundle.js.map -e * --exec npm run build",
@@ -27,6 +34,8 @@
     "@material-ui/icons": "^3.0.2",
     "aws-sdk": "^2.395.0",
     "axios": "^0.18.0",
+    "bcrypt": "^3.0.4",
+    "hoist-non-react-statics": "^3.3.0",
     "koa": "^2.6.2",
     "koa-bodyparser": "^4.2.1",
     "koa-mount": "^4.0.0",
@@ -34,8 +43,8 @@
     "koa-static": "^5.0.0",
     "node-time-ago": "^1.0.0",
     "querystring": "^0.2.0",
-    "react": "^16.7.0",
-    "react-dom": "^16.7.0",
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0",
     "react-form-validator-core": "^0.6.1",
     "react-material-ui-form-validator": "^2.0.3",
     "react-text-mask": "^5.4.3",

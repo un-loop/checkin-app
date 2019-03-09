@@ -43,8 +43,8 @@ export default (props) => {
                         >
                             edit
                         </IconButton>
-                </span>
-            </Tooltip>
+                    </span>
+                </Tooltip>
             </Grid>
             }
         </Grid>
