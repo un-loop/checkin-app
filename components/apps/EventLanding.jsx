@@ -1,7 +1,6 @@
 import * as React from "react";
 import axios from "axios";
 import { Button, Grid } from "@material-ui/core";
-import Theme from "../themes/unloop";
 import Page from "../layout/Page";
 import Section from "../layout/Section";
 import EventDetailsForm from "../forms/EventDetailsForm";

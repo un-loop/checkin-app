@@ -1,3 +1,4 @@
+import * as React from "react";
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import Theme from "../themes/unloop";
 import UserContextProvider from "./UserContextProvider";

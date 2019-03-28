@@ -1,32 +1,15 @@
 const ResultCodes =require("../resultCodes");
-const { v4 } = require("uuid");
-const bcrypt = require("bcrypt");
 
-const table = require("../database");
-const users = new table(this);
-
-exports.schema =  {
-    TableName : "User",
-    BillingMode: "PROVISIONED",
-    KeySchema: [
-        { AttributeName: "username", KeyType: "HASH"}
-    ],
-    AttributeDefinitions: [
-            { AttributeName: "username", AttributeType: "S" },
-        ],
-    ProvisionedThroughput: {
-        ReadCapacityUnits: 5,
-        WriteCapacityUnits: 5
-    }
-};
-
-exports.key = "username";
+const entity = require("../entity/user");
+const users = entity.table;
 
 exports.index = function *(next) {
     yield next;
-    this.body = this.dbQuery ?
+    const users = this.dbQuery ?
         yield users.query(this.dbQuery.isOrdered ? this.dbQuery : this.dbQuery.order(true)) :
         yield users.getAll();
+
+    this.body = users.map(entity.sanitizeUser);
 };
 
 exports.show = function *(next) {
@@ -38,33 +21,16 @@ exports.show = function *(next) {
         this.status = ResultCodes.NotFound;
         this.body = 'Not Found';
     } else {
-        this.body = result;
+        this.body = entity.sanitizeUser(result);
     }
 };
-
-
-function hashPassword(user) {
-    return new Promise(
-        (resolve, reject) => {
-            bcrypt.hash(user.password,  process.env.npm_package_config_saltRounds,
-                (err, hash) => {
-                    if (err) {
-                        return reject(err);
-                    } else {
-                        user.password = hash;
-                        return resolve(user);
-                    }
-                });
-        }
-    );
-}
 
 exports.create = function *(next) {
     yield next;
     if (!this.request.body || !this.request.body.username || !this.request.body.password) this.throw(ResultCodes.BadRequest, '.username, .password required');
     let user = (({ username, password }) => ({ username, password }))(this.request.body);
 
-    yield hashPassword(user)
+    yield entity.hashPassword(user)
         .then(users.create)
         .then( (user) => {
             this.status = ResultCodes.Created;
@@ -82,7 +48,7 @@ exports.update = function *(next) {
 
     let user = (({ password }) => ({ username: this.params.user, password }))(this.request.body);
 
-    yield hashPassword(user)
+    yield entity.hashPassword(user)
         .then(users.update)
         .then( (user) => {
             this.status = ResultCodes.Created;

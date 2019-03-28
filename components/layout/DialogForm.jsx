@@ -37,6 +37,11 @@ class DialogForm extends React.Component {
 
     render() {
         const {disabled, classes, actions, ...props} = this.props;
+
+        if (!props.onSubmit) props.onSubmit = (e) => {
+            e.nativeEvent.target.submit();
+        }
+
         return (
             <ValidatorForm {...props}>
                 <fieldset disabled={disabled} className={classes.fieldSet}>

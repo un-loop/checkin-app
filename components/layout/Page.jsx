@@ -50,52 +50,59 @@ class Page extends React.Component {
 
     }
 
+    logoutClick(e) {
+        e.preventDefault();
+        window.location.href = "/logout";
+    }
+
     render() {
         const { classes } = this.props;
         return (
             <div>
                 <CssBaseline />
-                <AppBar position="static" color={"primary"}>
-                    <Toolbar>
-                        <Grid container alignItems="center" justify="space-between">
-                            <Grid item>
-                                <Grid container alignItems="center" justify="flex-start">
-                                    <SmallLogo
-                                        color={LogoColor.White}
-                                        type={LogoType.Mark}
-                                    />
-                                    <Typography className={classes.headerText} variant="h6" color="inherit" noWrap>
-                                        <span>{this.props.title}</span>
-                                    </Typography>
+                { this.props.title &&
+                    <AppBar position="static" color={"primary"}>
+                        <Toolbar>
+                            <Grid container alignItems="center" justify="space-between">
+                                <Grid item>
+                                    <Grid container alignItems="center" justify="flex-start">
+                                        <SmallLogo
+                                            color={LogoColor.White}
+                                            type={LogoType.Mark}
+                                        />
+                                        <Typography className={classes.headerText} variant="h6" color="inherit" noWrap>
+                                            <span>{this.props.title}</span>
+                                        </Typography>
+                                    </Grid>
+                                </Grid>
+                                <Grid item>
+                                    <Grid container alignItems="center" justify="flex-end" spacing={8}>
+                                        <Tooltip title="Perform admin functions">
+                                            <Grid item>
+                                                <Link href="/admin" className={classes.link}>Administration</Link>
+                                            </Grid>
+                                        </Tooltip>
+                                        <Tooltip title="Your Account"
+                                                canOpen={!Boolean(this.state.anchorEl)}>
+                                            <Grid item>
+                                                <Avatar onClick={this.avatarClick} className={classes.avatar}>{this.props.user.name}</Avatar>
+                                                <Menu
+                                                    anchorEl={this.state.anchorEl}
+                                                    open={Boolean(this.state.anchorEl)}
+                                                    onClose={this.menuClose}
+                                                    >
+                                                    <MenuItem onClick={this.menuClick}>Profile</MenuItem>
+                                                    <MenuItem onClick={this.menuClick}>My account</MenuItem>
+                                                    <MenuItem onClick={this.logoutClick}>Logout</MenuItem>
+                                                </Menu>
+                                            </Grid>
+                                        </Tooltip>
+                                    </Grid>
                                 </Grid>
                             </Grid>
-                            <Grid item>
-                                <Grid container alignItems="center" justify="flex-end" spacing={8}>
-                                    <Tooltip title="Perform admin functions">
-                                        <Grid item>
-                                            <Link href="/admin" className={classes.link}>Administration</Link>
-                                        </Grid>
-                                    </Tooltip>
-                                    <Tooltip title="Your Account"
-                                             canOpen={!Boolean(this.state.anchorEl)}>
-                                        <Grid item>
-                                            <Avatar onClick={this.avatarClick} className={classes.avatar}>{this.props.user.name}</Avatar>
-                                            <Menu
-                                                anchorEl={this.state.anchorEl}
-                                                open={Boolean(this.state.anchorEl)}
-                                                onClose={this.menuClose}
-                                                >
-                                                <MenuItem onClick={this.menuClick}>Profile</MenuItem>
-                                                <MenuItem onClick={this.menuClick}>My account</MenuItem>
-                                                <MenuItem onClick={this.menuClick}>Logout</MenuItem>
-                                            </Menu>
-                                        </Grid>
-                                    </Tooltip>
-                                </Grid>
-                            </Grid>
-                        </Grid>
-                    </Toolbar>
-                </AppBar>
+                        </Toolbar>
+                    </AppBar>
+                }
                 <div className={classes.layout}>
                     {this.props.children}
                 </div>
@@ -108,7 +115,7 @@ const StyledPage = withUserContext(withStyles(styles)(Page));
 
 
 StyledPage.propTypes = {
-    title: PropTypes.string.isRequired,
+    title: PropTypes.string,
     children: PropTypes.node.isRequired
 }
 

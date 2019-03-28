@@ -1,28 +1,8 @@
 const ResultCodes = require("../resultCodes");
 const { v4 } = require("uuid");
 
-const table = require("../database");
-const attendees = new table(this);
-
-exports.schema =  {
-    TableName : "Attendee",
-    BillingMode: "PROVISIONED",
-    KeySchema: [
-        { AttributeName: "eventId", KeyType: "HASH"},
-        { AttributeName: "checkin", KeyType: "RANGE" }
-    ],
-    AttributeDefinitions: [
-            { AttributeName: "eventId", AttributeType: "S" },
-            { AttributeName: "checkin", AttributeType: "S" }
-        ],
-    ProvisionedThroughput: {
-        ReadCapacityUnits: 5,
-        WriteCapacityUnits: 5
-    }
-};
-
-exports.key = "eventId";
-exports.rangeKey = "attendeeId";
+const entity = require("../entity/attendee")
+const attendees = entity.table;
 
 exports.index = function *(next) {
     yield next;
