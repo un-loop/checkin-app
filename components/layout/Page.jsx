@@ -27,6 +27,17 @@ const styles = (theme) => ({
     }
 });
 
+const getInitials = (name) => {
+    let initials = name.split(' ') //todo: consider removing jr, sr, III, etc designations
+    .map((n) => n ? n[0] : '');
+
+    if (initials.length > 3) {
+        initals = intials[0] + initials[intitials.length - 1];
+    }
+
+    return initials;
+}
+
 class Page extends React.Component {
     constructor(props) {
         super(props);
@@ -77,26 +88,30 @@ class Page extends React.Component {
                                 </Grid>
                                 <Grid item>
                                     <Grid container alignItems="center" justify="flex-end" spacing={8}>
-                                        <Tooltip title="Perform admin functions">
-                                            <Grid item>
-                                                <Link href="/admin" className={classes.link}>Administration</Link>
-                                            </Grid>
-                                        </Tooltip>
-                                        <Tooltip title="Your Account"
-                                                canOpen={!Boolean(this.state.anchorEl)}>
-                                            <Grid item>
-                                                <Avatar onClick={this.avatarClick} className={classes.avatar}>{this.props.user.name}</Avatar>
-                                                <Menu
-                                                    anchorEl={this.state.anchorEl}
-                                                    open={Boolean(this.state.anchorEl)}
-                                                    onClose={this.menuClose}
-                                                    >
-                                                    <MenuItem onClick={this.menuClick}>Profile</MenuItem>
-                                                    <MenuItem onClick={this.menuClick}>My account</MenuItem>
-                                                    <MenuItem onClick={this.logoutClick}>Logout</MenuItem>
-                                                </Menu>
-                                            </Grid>
-                                        </Tooltip>
+                                        {this.props.user.isAdmin &&
+                                            <Tooltip title="Perform admin functions">
+                                                <Grid item>
+                                                    <Link href="/admin" className={classes.link}>Administration</Link>
+                                                </Grid>
+                                            </Tooltip>
+                                        }
+                                        {this.props.user.isLoggedIn &&
+                                            <Tooltip title="Your Account"
+                                                    canOpen={!Boolean(this.state.anchorEl)}>
+                                                <Grid item>
+                                                    <Avatar onClick={this.avatarClick} className={classes.avatar}>{getInitials(this.props.user.name)}</Avatar>
+                                                    <Menu
+                                                        anchorEl={this.state.anchorEl}
+                                                        open={Boolean(this.state.anchorEl)}
+                                                        onClose={this.menuClose}
+                                                        >
+                                                        <MenuItem onClick={this.menuClick}>Profile</MenuItem>
+                                                        <MenuItem onClick={this.menuClick}>My account</MenuItem>
+                                                        <MenuItem onClick={this.logoutClick}>Logout</MenuItem>
+                                                    </Menu>
+                                                </Grid>
+                                            </Tooltip>
+                                        }
                                     </Grid>
                                 </Grid>
                             </Grid>
@@ -112,7 +127,6 @@ class Page extends React.Component {
 }
 
 const StyledPage = withUserContext(withStyles(styles)(Page));
-
 
 StyledPage.propTypes = {
     title: PropTypes.string,

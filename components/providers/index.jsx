@@ -9,9 +9,12 @@ export * from "./UserContextProvider";
 export const ProviderWrapper = (props) => {
     const { children } = props;
 
+    const results = document.cookie.match('(^|[^;]+)\\s*user-context\\s*=\\s*([^;]+)');
+    const context = results ? JSON.parse(results.pop()) : null;
+
     return (
         <MuiThemeProvider theme={Theme}>
-            <UserContextProvider user={{name: "MA"}}>
+            <UserContextProvider user={context}>
                 {children}
             </UserContextProvider>
         </MuiThemeProvider>

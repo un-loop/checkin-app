@@ -2,6 +2,7 @@ const passport = require('koa-passport');
 const route = require('koa-route');
 const session = require('./session');
 const crypt = require('./crypt')("change me now");
+const context = require('./user-context')
 
 const userEntity = require("./entity/user");
 
@@ -52,6 +53,7 @@ module.exports = (app) => {
     app.use(session(app));
     app.use(passport.initialize());
     app.use(passport.session());
+    app.use(context());
 
     app.use(route.post('/login', authenticateMiddleware));
 
