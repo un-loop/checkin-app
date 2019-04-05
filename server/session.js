@@ -5,7 +5,7 @@ const CONFIG = {
     /** (number || 'session') maxAge in ms (default is 1 days) */
     /** 'session' will result in a cookie that expires when session/browser is closed */
     /** Warning: If a session cookie is stolen, this cookie will never expire */
-    maxAge: 'session',
+    maxAge: 3600000, /** 1 hr */
     autoCommit: true, /** (boolean) automatically commit headers (default true) */
     overwrite: true, /** (boolean) can overwrite or not (default true) */
     httpOnly: true, /** (boolean) httpOnly or not (default true) */
@@ -15,7 +15,7 @@ const CONFIG = {
     secure: process.env.npm_package_config_environment !== "development"
 };
 
-module.exports = (app) => {
-    app.keys = ['mike\'s special key'];
+module.exports = (app, key) => {
+    app.keys = [key];
     return session(CONFIG, app);
 }

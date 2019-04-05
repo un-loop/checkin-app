@@ -9,7 +9,7 @@ module.exports = (config) => {
     return async (ctx, next) => {
         await next();
 
-        let payload = {
+        let payload = { // payload must hold only UI concerns, this is exposed to the browser and is not secure
             username: ctx.req.user ? ctx.req.user.username : "",
             name: ctx.req.user ?  ctx.req.user.name : "",
             isAdmin: ctx.req.user ? ctx.req.user.roles.findIndex((item) => item === "super" ) !== -1 : false,

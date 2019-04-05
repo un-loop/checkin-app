@@ -54,10 +54,5 @@ module.exports = (entity) => {
 }
 
 module.exports.permissions = {
-    default: ["user"],
-    index: ["admin"],
-    show: ["admin"],
-    create: ["admin"],
-    update: ["admin"],
-    destroy: ["admin"]
+    default: ["admin"]
 }

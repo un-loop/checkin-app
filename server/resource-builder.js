@@ -19,8 +19,6 @@ const checkPermission = (ctx, permissionSet) => {
                 perm === "user" || (ctx.req.user.roles && ctx.req.user.roles.includes(perm)));
 }
 
-
-
 const wrapExport = (exp, permissions, entryPoint) =>
     function*(next) {
         if (permissions) {
