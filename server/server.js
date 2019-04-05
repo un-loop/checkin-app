@@ -1,27 +1,28 @@
+const path = require('path');
 const koa = require('koa');
 const mount = require('koa-mount');
 const serve = require('koa-static');
-const Resource = require('koa-resource-router');
-const path = require('path');
 const body = require('koa-bodyparser');
-const decode = require('koa-decode-params')
-const wrapper = require('koa-middleware-wrapper');
+const convert = require('koa-convert');
 const nestedRouter = require('koa-recursive-resource-router');
-const query = require('./query');
+const query = require('unloop-koa-query');
+const decode = require('koa-decode-params');
 const session = require('./session')
 const auth = require('./koa-authorize')
+const resourceBuilder = require('./resource-builder')(__dirname);
 
+const queryMiddleware = convert.back(query());
+const decodeMiddleware = convert.back(decode());
+const builderWithMiddleware = resourceBuilder(decodeMiddleware, queryMiddleware);
 
-const bodyMiddleware = wrapper(body()); //need to wrap because koa-resource-router expects a generator pattern
-                                        //middleware, whereas koa-bodyparser provides an async pattern
-const queryMiddleware = wrapper(query());
-const decodeMiddleware = wrapper(decode());
-const events = new Resource('events', decodeMiddleware, queryMiddleware, require('./resources/events'));
-const attendees = new Resource('attendees', decodeMiddleware,queryMiddleware, require('./resources/attendees'));
+const events = builderWithMiddleware('events');
+const attendees = builderWithMiddleware('attendees');
+const users = builderWithMiddleware('users');
 events.add(attendees);
 
 const koaApi = new koa();
 koaApi.use(nestedRouter(events));
+koaApi.use(users.middleware());
 
 const koaApp = new koa();
 

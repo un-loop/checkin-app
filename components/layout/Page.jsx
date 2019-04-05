@@ -28,6 +28,8 @@ const styles = (theme) => ({
 });
 
 const getInitials = (name) => {
+    if (!name) return '';
+
     let initials = name.split(' ') //todo: consider removing jr, sr, III, etc designations
     .map((n) => n ? n[0] : '');
 

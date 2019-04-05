@@ -2,22 +2,24 @@ const dbContext = require("../dbcontext");
 const Table = require("unloop-database-dynamo")(dbContext.db, dbContext.docClient);
 const bcrypt = require("bcrypt");
 
+const key = "username";
+
+exports.key = key;
+
 exports.schema =  {
     TableName : "User",
     BillingMode: "PROVISIONED",
     KeySchema: [
-        { AttributeName: "username", KeyType: "HASH"}
+        { AttributeName: key, KeyType: "HASH"}
     ],
     AttributeDefinitions: [
-            { AttributeName: "username", AttributeType: "S" },
+            { AttributeName: key, AttributeType: "S" },
         ],
     ProvisionedThroughput: {
         ReadCapacityUnits: 5,
         WriteCapacityUnits: 5
     }
 };
-
-exports.key = "username";
 
 exports.initialData = () => hashPassword("changeme").then(
     hash => [
@@ -26,7 +28,7 @@ exports.initialData = () => hashPassword("changeme").then(
             name: "Unloop Administrator",
             password: hash,
             expiration: (new Date()).toISOString(),
-            roles: ["super"]
+            roles: ["super", "user"]
         }
     ]
 );
@@ -34,7 +36,7 @@ exports.initialData = () => hashPassword("changeme").then(
 const hashPassword = (password) =>
     new Promise(
         (resolve, reject) => {
-            bcrypt.hash(password,  Number(process.env.npm_package_config_saltRounds),
+            bcrypt.hash(password, Number(process.env.npm_package_config_saltRounds),
                 (err, hash) => {
                     if (err) {
                         return reject(err);

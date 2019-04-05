@@ -1,55 +1,63 @@
 const ResultCodes =require("../resultCodes");
 const { v4 } = require("uuid");
 
-const entity = require("../entity/events");
-const events = entity.table;
+module.exports = (entity) => {
+    const events = entity.table;
 
-exports.index = function *(next) {
-    yield next;
-    this.body = this.dbQuery ?
-        yield events.query(this.dbQuery.isOrdered ? this.dbQuery : this.dbQuery.order(true)) :
-        yield events.getAll();
-};
+    return {
+        index: async function(ctx, next) {
+            await next();
+            ctx.body = ctx.dbQuery ?
+                await events.query(ctx.dbQuery.isOrdered ? ctx.dbQuery : ctx.dbQuery.order(true)) :
+                await events.getAll();
+        },
+        show: async function(ctx, next) {
+            await next();
+            if (!ctx.params.event) ctx.throw(ResultCodes.BadRequest, 'eventId required');
+            var result = await events.get(ctx.params.event);
 
-exports.show = function *(next) {
-    yield next;
-    if (!this.params.event) this.throw(ResultCodes.BadRequest, 'eventId required');
-    var result = yield events.get(this.params.event);
+            if (!result) {
+                ctx.status = ResultCodes.NotFound;
+                ctx.body = 'Not Found';
+            } else {
+                ctx.body = result;
+            }
+        },
+        create: async function(ctx, next) {
+            await next();
+            if (!ctx.request.body || !ctx.request.body.name || !ctx.request.body.start) ctx.throw(ResultCodes.BadRequest, '.name, .start required');
+            let event = (({ name, start }) => ({ name, start }))(ctx.request.body);
+            event.eventId = v4();
+            await events.create(event);
+            ctx.status = ResultCodes.Created;
+            ctx.body = JSON.stringify(event);
+        },
+        update: async function(ctx, next) {
+            await next();
+            if (!ctx.params.event) ctx.throw(ResultCodes.BadRequest, 'eventId required');
+            if (!ctx.request.body || !ctx.request.body.eventId || !ctx.request.body.name || !ctx.request.body.start) ctx.throw(ResultCodes.BadRequest, '.eventId, .name, .start required');
 
-    if (!result) {
-        this.status = ResultCodes.NotFound;
-        this.body = 'Not Found';
-    } else {
-        this.body = result;
-    }
-};
+            let event = (({ eventId, name, start, started }) => ({ eventId, name, start, started }))(ctx.request.body);
+            await events.update(event, ctx.params.event);
+            ctx.status = ResultCodes.Success;
+            ctx.body = JSON.stringify(event);
+        },
+        destroy: async function(ctx, next) {
+            await next();
+            if (!ctx.params.event) ctx.throw(ResultCodes.BadRequest, 'eventId required');
 
-exports.create = function *(next) {
-    yield next;
-    if (!this.request.body || !this.request.body.name || !this.request.body.start) this.throw(ResultCodes.BadRequest, '.name, .start required');
-    let event = (({ name, start }) => ({ name, start }))(this.request.body);
-    event.eventId = v4();
-    yield events.create(event);
-    this.status = ResultCodes.Created;
-    this.body = JSON.stringify(event);
-};
-
-exports.update = function *(next) {
-    yield next;
-    if (!this.params.event) this.throw(ResultCodes.BadRequest, 'eventId required');
-    if (!this.request.body || !this.request.body.eventId || !this.request.body.name || !this.request.body.start) this.throw(ResultCodes.BadRequest, '.eventId, .name, .start required');
-
-    let event = (({ eventId, name, start, started }) => ({ eventId, name, start, started }))(this.request.body);
-    yield events.update(event, this.params.event);
-    this.status = ResultCodes.Success;
-    this.body = JSON.stringify(event);
+            await events.delete(ctx.params.event);
+            ctx.status = ResultCodes.Success;
+            ctx.body = "Deleted";
+          }
+    };
 }
 
-exports.destroy = function *(next) {
-    yield next;
-    if (!this.params.event) this.throw(ResultCodes.BadRequest, 'eventId required');
-
-    yield events.delete(this.params.event);
-    this.status = ResultCodes.Success;
-    this.body = "Deleted";
-  }
+module.exports.permissions = {
+    default: ["user"],
+    index: ["admin"],
+    show: ["admin"],
+    create: ["admin"],
+    update: ["admin"],
+    destroy: ["admin"]
+}

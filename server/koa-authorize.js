@@ -4,7 +4,7 @@ const session = require('./session');
 const crypt = require('./crypt')("change me now");
 const context = require('./user-context')
 
-const userEntity = require("./entity/user");
+const userEntity = require("./entity/users");
 
 passport.serializeUser(function(user, done) {
     try {

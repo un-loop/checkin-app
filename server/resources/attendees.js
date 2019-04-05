@@ -1,55 +1,54 @@
 const ResultCodes = require("../resultCodes");
 const { v4 } = require("uuid");
 
-const entity = require("../entity/attendee")
-const attendees = entity.table;
+module.exports = (entity) => {
+    const attendees = entity.table;
 
-exports.index = function *(next) {
-    yield next;
-    this.body = this.dbQuery ?
-        yield attendees.query(this.dbQuery.isOrdered ? this.dbQuery : this.dbQuery.order(false)) :
-        yield attendees.getAll();
-}
+    return {
+        index: async function(ctx, next) {
+            await next();
+            ctx.body = ctx.dbQuery ?
+                await attendees.query(ctx.dbQuery.isOrdered ? ctx.dbQuery : ctx.dbQuery.order(false)) :
+                await attendees.getAll();
+        },
+        show: async function(ctx, next) {
+            await next();
+            var result = await attendees.get(ctx.params.event, ctx.params.attendee);
 
-exports.show = function *(next) {
-    yield next;
-    var result = yield attendees.get(this.params.event, this.params.attendee);
+            if (!result) {
+                ctx.status = ResultCodes.NotFound;
+                ctx.body = 'Not Found';
+            } else {
+                ctx.body = result;
+            }
+        },
+        create: async function(ctx, next) {
+            await next();
+            if (!ctx.request.body || !ctx.params.event || !ctx.request.body.checkin || !ctx.request.body.name) ctx.throw(ResultCodes.BadRequest, 'eventId, .checkin, .name required');
+            let attendee = (({ name, organization, email, phone, optIn, checkin }) => ({ name, organization, email, phone, optIn, checkin }))(ctx.request.body);
+            attendee.eventId = ctx.params.event;
+            attendee.attendeeId = v4();
+            await attendees.create(attendee);
+            ctx.status = ResultCodes.Created;
+            ctx.body = JSON.stringify(attendee);
+        },
+        update: async function(ctx, next) {
+            await next();
+            if (!ctx.request.body || !ctx.params.event || !ctx.request.body.checkin || !ctx.request.body.name || !ctx.params.attendee) ctx.throw(ResultCodes.BadRequest, 'eventId, attendeeId, .checkin, .name required');
+            if (!ctx.request.body || !ctx.request.body.eventId || !ctx.request.body.checkin) ctx.throw(ResultCodes.BadRequest, '.eventId, .checkin required');
 
-    if (!result) {
-        this.status = ResultCodes.NotFound;
-        this.body = 'Not Found';
-    } else {
-        this.body = result;
+            let attendee = (({ eventId, attendeeId, name, organization, email, phone, optIn, checkin } ) => ({ eventId, attendeeId, name, organization, email, phone, optIn, checkin }))(ctx.request.body);
+            await attendees.update(attendee, ctx.params.event, ctx.params.attendee);
+            ctx.status = ResultCodes.Success;
+            ctx.body = JSON.stringify(attendee);
+        },
+        destroy: async function(ctx, next) {
+            await next();
+            if (!ctx.params.event || !ctx.params.attendee) ctx.throw(ResultCodes.BadRequest, 'eventId, attendeeId required');
+
+            await attendees.delete(ctx.params.event, ctx.params.attendee);
+            ctx.status = ResultCodes.Success;
+            ctx.body = JSON.stringify(attendee);
+        }
     }
-}
-
-exports.create = function *(next) {
-    yield next;
-    if (!this.request.body || !this.params.event || !this.request.body.checkin || !this.request.body.name) this.throw(ResultCodes.BadRequest, 'eventId, .checkin, .name required');
-    let attendee = (({ name, organization, email, phone, optIn, checkin }) => ({ name, organization, email, phone, optIn, checkin }))(this.request.body);
-    attendee.eventId = this.params.event;
-    attendee.attendeeId = v4();
-    yield attendees.create(attendee);
-    this.status = ResultCodes.Created;
-    this.body = JSON.stringify(attendee);
-}
-
-exports.update = function *(next) {
-    yield next;
-    if (!this.request.body || !this.params.event || !this.request.body.checkin || !this.request.body.name || !this.params.attendee) this.throw(ResultCodes.BadRequest, 'eventId, attendeeId, .checkin, .name required');
-    if (!this.request.body || !this.request.body.eventId || !this.request.body.checkin) this.throw(ResultCodes.BadRequest, '.eventId, .checkin required');
-
-    let attendee = (({ eventId, attendeeId, name, organization, email, phone, optIn, checkin } ) => ({ eventId, attendeeId, name, organization, email, phone, optIn, checkin }))(this.request.body);
-    yield attendees.update(attendee, this.params.event, this.params.attendee);
-    this.status = ResultCodes.Success;
-    this.body = JSON.stringify(attendee);
-}
-
-exports.destroy = function *(next) {
-    yield next;
-    if (!this.params.event || !this.params.attendee) this.throw(ResultCodes.BadRequest, 'eventId, attendeeId required');
-
-    yield attendees.delete(this.params.event, this.params.attendee);
-    this.status = ResultCodes.Success;
-    this.body = JSON.stringify(attendee);
 }
