@@ -22,5 +22,3 @@ module.DbContext = class {
 }
 
 module.exports = new module.DbContext("http://localhost:8000", "us-west-2");
-
-

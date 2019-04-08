@@ -1,23 +1,6 @@
 const convert = require('koa-convert');
 const Resource = require('koa-resource-router');
-
-const checkPermission = (ctx, permissionSet) => {
-    if (!permissionSet || permissionSet.length == 0) {
-        return true;
-    }
-
-    if (!ctx.isAuthenticated()) {
-        return false;
-    }
-
-    if (ctx.req.user.roles.includes("super")) {
-        return true;
-    }
-
-    return  permissionSet.some( (perm) => typeof perm === "function" ?
-                perm(ctx.req.user, ctx.request.body, ctx.params) :
-                perm === "user" || (ctx.req.user.roles && ctx.req.user.roles.includes(perm)));
-}
+const checkPermission = require('./check-permission')
 
 const wrapExport = (exp, permissions, entryPoint) =>
     function*(next) {

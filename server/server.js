@@ -10,6 +10,26 @@ const decode = require('koa-decode-params');
 const session = require('./session')
 const auth = require('./koa-authorize')
 const resourceBuilder = require('./resource-builder')(__dirname);
+const staticRouter = require('./unloop-static-router')( path.resolve(__dirname, "../client"),
+    [
+        {
+            route: '/',
+            permissions: ['admin']}
+        ,
+        {
+            route: '/admin',
+            permissions: ['admin']
+        },
+        {
+            route: '/check-in',
+            permissions: ['admin']
+        },
+        {
+            route: '/image',
+            permissions: []
+        }
+    ]
+);
 
 const queryMiddleware = convert.back(query());
 const decodeMiddleware = convert.back(decode());
@@ -31,7 +51,6 @@ koaApp.use(body());
 koaApp.use(session(koaApp));
 koaApp.use(auth(koaApp));
 koaApp.use(mount('/api', koaApi));
-
-koaApp.use(serve(path.resolve(__dirname, "../client")));
+koaApp.use(staticRouter(koaApp));
 
 koaApp.listen(3000);

@@ -15,7 +15,11 @@
         "args": [ "${file}" ],
         "cwd": "${fileDirname}",
         "outputCapture": "std",
-        "internalConsoleOptions": "openOnSessionStart"
+        "internalConsoleOptions": "openOnSessionStart",
+        "env":
+        {
+            "npm_config_cryptKey": "fakedebugkey"
+        }
       }
     ]
   }
