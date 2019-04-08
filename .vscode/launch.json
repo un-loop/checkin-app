@@ -18,7 +18,8 @@
         "internalConsoleOptions": "openOnSessionStart",
         "env":
         {
-            "npm_config_cryptKey": "fakedebugkey"
+            "npm_config_cryptKey": "fakedebugkey",
+            "npm_package_config_environment": "development"
         }
       }
     ]

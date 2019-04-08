@@ -7,9 +7,8 @@ import Section from "../layout/Section";
 import ResponsiveDialog from "../layout/ResponsiveDialog"
 import DialogErrorTitle from "../layout/DialogErrorTitle"
 import Page from "../layout/Page"
-import Theme from "../themes/unloop"
-import { MuiThemeProvider } from "@material-ui/core/styles";
 import PropTypes from 'prop-types';
+import { ProviderWrapper } from '../providers/';
 
 class Checkin extends React.Component {
     constructor(props) {
@@ -146,7 +145,7 @@ class Checkin extends React.Component {
                     </ResponsiveDialog>
                 </Section>
                     {
-                    (this.state.loading || (this.state.latestAttendees && this.state.latestAttendees.length)) &&
+                    (this.state.loading || (this.state.latestAttendees && this.state.latestAttendees.length !== 0)) &&
                         <RecentCheckins
                             checkins={this.state.latestAttendees}
                             loading={this.state.loading}
@@ -165,6 +164,6 @@ Checkin.propTypes = {
 // Keep MuiThemeProvider outside of a control that changes state
 // so that the theme doesn't re-render
 export default (props) =>
-        <MuiThemeProvider theme={Theme}>
+        <ProviderWrapper>
             <Checkin {...props} />
-        </MuiThemeProvider>
+        </ProviderWrapper>
