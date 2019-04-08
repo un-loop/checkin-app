@@ -35,7 +35,7 @@ class Login extends React.Component {
                             </Grid>
                         </Grid>
                     </DialogErrorTitle>
-                    <LoginForm />
+                    <LoginForm redirect={this.props.redirect} />
 
                 </ResponsiveDialog>
 

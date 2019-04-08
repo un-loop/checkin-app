@@ -44,7 +44,7 @@ passport.use(new LocalStrategy(function(username, password, done) {
 }));
 
 const authenticateMiddleware = (ctx, next) => {
-    const successRedirect = ctx.query.redirect || '/';
+    const successRedirect = ctx.request.body.redirect || '/';
     const failureRedirect = `/login?message=${encodeURI("invalid username or password")}`;
 
     return passport.authenticate('local', { successRedirect, failureRedirect })(ctx, next);

@@ -15,7 +15,7 @@ module.exports = (path, routes, loginPath) => (app) => {
             authRouter.all(route.route, async (ctx, next) =>
             {
                 if (!checkPermission(ctx, route.permissions)) {
-                    ctx.redirect(loginPath);
+                    ctx.redirect(`${loginPath}?redirect=${encodeURIComponent(ctx.url)}`);
                 } else {
                     await next();
                 }

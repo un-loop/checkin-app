@@ -31,7 +31,7 @@ class LoginForm extends React.Component {
     }
 
     render() {
-        const {saving, ...props} = this.props;
+        const {saving, redirect, ...props} = this.props;
 
         const actions = [
             {
@@ -46,8 +46,9 @@ class LoginForm extends React.Component {
         props.actions = actions;
 
         return (
-            <DialogForm {...props} method="POST" action="/login">
+            <DialogForm {...props} method="POST">
                 <FormField>
+                    <input type="hidden" name="redirect" value={redirect} />
                     <TextValidator
                         id="username"
                         name="username"
