@@ -1,7 +1,6 @@
 const path = require('path');
 const koa = require('koa');
 const mount = require('koa-mount');
-const serve = require('koa-static');
 const body = require('koa-bodyparser');
 const convert = require('koa-convert');
 const nestedRouter = require('koa-recursive-resource-router');
