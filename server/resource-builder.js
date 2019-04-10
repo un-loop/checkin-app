@@ -1,6 +1,6 @@
 const convert = require('koa-convert');
 const Resource = require('koa-resource-router');
-const checkPermission = require('./check-permission')
+const checkPermission = require("unloop-check-permission").roles;
 
 const wrapExport = (exp, permissions, entryPoint) =>
     function*(next) {

@@ -1,6 +1,6 @@
 const static = require("koa-static")
 const router = require("koa-router")
-const checkPermission = require("./check-permission")
+const checkPermission = require("unloop-check-permission").roles;
 
 module.exports = (path, routes, loginPath) => (app) => {
     loginPath = loginPath ? loginPath : '/login';

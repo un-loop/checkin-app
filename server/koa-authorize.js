@@ -2,7 +2,7 @@ const passport = require('koa-passport');
 const route = require('koa-route');
 const session = require('./session');
 const cryptKey = process.env.npm_config_cryptKey;
-const crypt = require('./crypt')(cryptKey);
+const crypt = require('unloop-crypt')(cryptKey);
 const context = require('./user-context');
 
 const userEntity = require("./entity/users");
