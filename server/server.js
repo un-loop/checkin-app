@@ -11,7 +11,7 @@ const crypt = require('unloop-crypt')(cryptKey);
 
 const session = require('./session');
 const userEntity = require("./entity/users");
-const Auth = require('./koa-authorize');
+const Auth = require('koa-auth-wrapper');
 const context = require('./user-context');
 const resourceBuilder = require('unloop-resource-builder')(__dirname);
 const staticRouter = require('unloop-static-router')( path.resolve(__dirname, "../client"),
