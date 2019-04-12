@@ -6,10 +6,15 @@ const convert = require('koa-convert');
 const nestedRouter = require('koa-recursive-resource-router');
 const query = require('unloop-koa-query');
 const decode = require('koa-decode-params');
-const session = require('./session')
-const auth = require('./koa-authorize')
-const resourceBuilder = require('./resource-builder')(__dirname);
-const staticRouter = require('./unloop-static-router')( path.resolve(__dirname, "../client"),
+const cryptKey = process.env.npm_config_cryptKey;
+const crypt = require('unloop-crypt')(cryptKey);
+
+const session = require('./session');
+const userEntity = require("./entity/users");
+const Auth = require('./koa-authorize');
+const context = require('./user-context');
+const resourceBuilder = require('unloop-resource-builder')(__dirname);
+const staticRouter = require('unloop-static-router')( path.resolve(__dirname, "../client"),
     [
         {
             route: '/',
@@ -47,8 +52,19 @@ const koaApp = new koa();
 
 koaApp.use(body());
 
-koaApp.use(session(koaApp));
-koaApp.use(auth(koaApp));
+koaApp.use(session(koaApp, cryptKey));
+koaApp.use(context());
+
+const auth = new Auth({
+    login: "/login",
+    logout: "/logout",
+    encrypt: crypt.encrypt,
+    decrypt: crypt.decrypt,
+    localStrategy: async (username, password) =>
+        userEntity.table.get(username).then(userEntity.validatePassword(password))
+});
+
+koaApp.use(auth.middleware());
 koaApp.use(mount('/api', koaApi));
 koaApp.use(staticRouter(koaApp));
 
