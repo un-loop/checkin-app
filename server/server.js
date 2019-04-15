@@ -7,31 +7,31 @@ const decode = require('koa-decode-params');
 const cryptKey = process.env.npm_config_cryptKey;
 const crypt = require('unloop-crypt')(cryptKey);
 const Auth = require('koa-auth-wrapper');
-
-const session = require('./session');
-const userEntity = require("./entity/users");
-const context = require('./user-context');
+const context = require('koa-user-context');
+const session = require('unloop-auth-session');
 const resourceBuilder = require('unloop-resource-builder')(__dirname);
 const staticRouter = require('unloop-static-router')( path.resolve(__dirname, "../client"),
-    [
-        {
-            route: '/',
-            permissions: ['admin']}
-        ,
-        {
-            route: '/admin',
-            permissions: ['admin']
-        },
-        {
-            route: '/check-in',
-            permissions: ['admin']
-        },
-        {
-            route: '/image',
-            permissions: []
-        }
-    ]
+[
+    {
+        route: '/',
+        permissions: ['admin']}
+    ,
+    {
+        route: '/admin',
+        permissions: ['admin']
+    },
+    {
+        route: '/check-in',
+        permissions: ['admin']
+    },
+    {
+        route: '/image',
+        permissions: []
+    }
+]
 );
+
+const userEntity = require("./entity/users");
 
 const builderWithMiddleware = resourceBuilder(query(), decode());
 
