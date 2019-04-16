@@ -69,11 +69,11 @@ class Page extends React.Component {
     }
 
     render() {
-        const { classes } = this.props;
+        const { classes, user, title, children, ...props } = this.props;
         return (
-            <div>
+            <div {...props}>
                 <CssBaseline />
-                { this.props.title &&
+                { title &&
                     <AppBar position="static" color={"primary"}>
                         <Toolbar>
                             <Grid container alignItems="center" justify="space-between">
@@ -84,24 +84,24 @@ class Page extends React.Component {
                                             type={LogoType.Mark}
                                         />
                                         <Typography className={classes.headerText} variant="h6" color="inherit" noWrap>
-                                            <span>{this.props.title}</span>
+                                            <span>{title}</span>
                                         </Typography>
                                     </Grid>
                                 </Grid>
                                 <Grid item>
                                     <Grid container alignItems="center" justify="flex-end" spacing={8}>
-                                        {this.props.user.isAdmin &&
+                                        {user.isAdmin &&
                                             <Tooltip title="Perform admin functions">
                                                 <Grid item>
                                                     <Link href="/admin" className={classes.link}>Administration</Link>
                                                 </Grid>
                                             </Tooltip>
                                         }
-                                        {this.props.user.isLoggedIn &&
+                                        {user.isLoggedIn &&
                                             <Tooltip title="Your Account"
                                                     canOpen={!Boolean(this.state.anchorEl)}>
                                                 <Grid item>
-                                                    <Avatar onClick={this.avatarClick} className={classes.avatar}>{getInitials(this.props.user.name)}</Avatar>
+                                                    <Avatar onClick={this.avatarClick} className={classes.avatar}>{getInitials(user.name)}</Avatar>
                                                     <Menu
                                                         anchorEl={this.state.anchorEl}
                                                         open={Boolean(this.state.anchorEl)}
@@ -121,7 +121,7 @@ class Page extends React.Component {
                     </AppBar>
                 }
                 <div className={classes.layout}>
-                    {this.props.children}
+                    {children}
                 </div>
             </div>
         );
