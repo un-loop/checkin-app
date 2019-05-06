@@ -3,6 +3,7 @@ import { DialogTitle } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
 import PropTypes from 'prop-types';
 import ErrorMessage from "../widgets/ErrorMessage";
+import selectable from "../HOCs/selectable";
 
 const styles = (theme) => ({
     root: {
@@ -35,9 +36,11 @@ const DialogErrorTitle = (props) => (
 
 DialogErrorTitle.propTypes = {
     error: PropTypes.shape({
-        message: PropTypes.string.isRequired
+        message: PropTypes.string.isRequired,
+        errorKey: PropTypes.any.isRequired,
+        retry: PropTypes.bool
     }),
     children: PropTypes.node.isRequired
 }
 
-export default withStyles(styles)(DialogErrorTitle);
+export default selectable(withStyles(styles)(DialogErrorTitle));

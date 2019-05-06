@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { LogoColor, SmallLogo, LogoType } from "../widgets/Logo"
 import Tooltip from "../widgets/Tooltip";
 import { withUserContext } from "../providers/UserContextProvider";
+import ProfileDrawer from "./ProfileDrawer";
 
 const styles = (theme) => ({
     layout: {
@@ -44,28 +45,33 @@ class Page extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = { showManageAccount: false }
-        this.avatarClick = this.avatarClick.bind(this);
-        this.menuClose = this.menuClose.bind(this);
+        this.state = { showManageAccount: false, drawerOpen: false }
         this.menuClick = this.menuClick.bind(this);
     }
 
-    avatarClick(e) {
-        e.preventDefault();
+    avatar(e) {
         this.setState({anchorEl: e.target});
     }
 
-    menuClose() {
+    close() {
         this.setState({anchorEl: null});
     }
 
-    menuClick() {
-
+    profile() {
+        this.setState({drawerOpen: true, anchorEl: null});
     }
 
-    logoutClick(e) {
-        e.preventDefault();
+    logout() {
+        this.setState({anchorEl: null});
         window.location.href = "/logout";
+    }
+
+    menuClick(callback) {
+        return (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            callback.call(this, e);
+        }
     }
 
     render() {
@@ -73,6 +79,11 @@ class Page extends React.Component {
         return (
             <div {...props}>
                 <CssBaseline />
+                { user.isLoggedIn &&
+                    <ProfileDrawer open={this.state.drawerOpen}
+                        onClose={() => this.setState({drawerOpen: false})}
+                        onOpen={() => this.setState({drawerOpen: true})} />
+                }
                 { title &&
                     <AppBar position="static" color={"primary"}>
                         <Toolbar>
@@ -101,15 +112,14 @@ class Page extends React.Component {
                                             <Tooltip title="Your Account"
                                                     canOpen={!Boolean(this.state.anchorEl)}>
                                                 <Grid item>
-                                                    <Avatar onClick={this.avatarClick} className={classes.avatar}>{getInitials(user.name)}</Avatar>
+                                                    <Avatar onClick={this.menuClick(this.avatar)} className={classes.avatar}>{getInitials(user.name)}</Avatar>
                                                     <Menu
                                                         anchorEl={this.state.anchorEl}
                                                         open={Boolean(this.state.anchorEl)}
-                                                        onClose={this.menuClose}
+                                                        onClose={this.menuClick(this.close)}
                                                         >
-                                                        <MenuItem onClick={this.menuClick}>Profile</MenuItem>
-                                                        <MenuItem onClick={this.menuClick}>My account</MenuItem>
-                                                        <MenuItem onClick={this.logoutClick}>Logout</MenuItem>
+                                                        <MenuItem onClick={this.menuClick(this.profile)}>Profile</MenuItem>
+                                                        <MenuItem onClick={this.menuClick(this.logout)}>Logout</MenuItem>
                                                     </Menu>
                                                 </Grid>
                                             </Tooltip>
@@ -132,7 +142,12 @@ const StyledPage = withUserContext(withStyles(styles)(Page));
 
 StyledPage.propTypes = {
     title: PropTypes.string,
-    children: PropTypes.node.isRequired
+    children: PropTypes.node.isRequired,
+    user: PropTypes.shape({
+        isLoggedIn: PropTypes.bool.isRequired,
+        isAdmin: PropTypes.bool.isRequired,
+        name: PropTypes.string.isRequired
+    })
 }
 
 export default StyledPage;

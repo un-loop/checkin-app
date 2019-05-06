@@ -36,6 +36,10 @@ exports.initialData = () => hashPassword("changeme").then(
 const hashPassword = (password) =>
     new Promise(
         (resolve, reject) => {
+            if (password === undefined) {
+                return resolve(undefined);
+            }
+
             bcrypt.hash(password, Number(process.env.npm_package_config_saltRounds),
                 (err, hash) => {
                     if (err) {
@@ -55,7 +59,7 @@ const validatePassword = (password) => (user) =>
     Promise.resolve(false);
 
 exports.hashPassword = (user) => hashPassword(user.password).then(hash => {
-    user.password = hash;
+    if (hash) user.password = hash;
     return user;
 });
 

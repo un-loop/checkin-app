@@ -12,7 +12,7 @@ const theme = createMuiTheme({
             default: "#f5f5f5"
         },
         primary: {
-            light: "rgba(11, 186, 203, 1)",
+            light: "rgb(200, 239, 243)",
             main: "rgba(5, 159, 174, 1)",
             dark: "rgba(5, 120, 132, 1)",
             contrastText: "rgba(255, 255, 255, 1)"

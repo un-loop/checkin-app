@@ -1,14 +1,4 @@
 import * as React from "react";
-import axios from "axios";
-import { Button, Grid } from "@material-ui/core";
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import Page from "../layout/Page";
-import Section from "../layout/Section";
-import EventDetailsForm from "../forms/EventDetailsForm";
-import EventTable from "../tables/EventTable"
-import ResponsiveDialog from "../layout/ResponsiveDialog";
-import DialogErrorTitle from "../layout/DialogErrorTitle";
-import { ProviderWrapper } from "../providers";
 import DialogForm from "../layout/DialogForm";
 import FormField from "../forms/FormField";
 import TextValidator from "react-material-ui-form-validator/lib/TextValidator";

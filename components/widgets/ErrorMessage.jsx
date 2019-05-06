@@ -51,8 +51,17 @@ class ErrorMessage extends React.Component {
         this.state = {dismissed: false};
     }
 
+    componentDidMount() {
+        if (this.props.onDismissUpdate) {
+            this.props.onDismissUpdate(this.state.dismissed);
+        }
+    }
+
     onDismiss() {
         this.setState({dismissed: true});
+        if (this.props.onDismissUpdate) {
+            this.props.onDismissUpdate(true);
+        }
     }
 
     onRetry(e) {
@@ -89,7 +98,9 @@ class ErrorMessage extends React.Component {
 
 ErrorMessage.propTypes = {
     children: PropTypes.node.isRequired,
-    variant: PropTypes.string
+    variant: PropTypes.string,
+    onDismissUpdate: PropTypes.func,
+    retry: PropTypes.func
 }
 
 export default withStyles(style)(ErrorMessage);

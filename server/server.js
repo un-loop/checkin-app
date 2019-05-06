@@ -58,12 +58,26 @@ koaApp.use(context( (user) => ({ // payload must hold only UI concerns, this is 
 ))
 
 const auth = new Auth({
-    login: "/login",
-    logout: "/logout",
     encrypt: crypt.encrypt,
     decrypt: crypt.decrypt,
     localStrategy: async (username, password) =>
-        userEntity.table.get(username).then(userEntity.validatePassword(password))
+        userEntity.table.get(username).then(userEntity.validatePassword(password)),
+    changePassword: async (user, password, newPassword) =>
+        userEntity.table.get(user.username)
+        .then(userEntity.validatePassword(password))
+        .then((result) => {
+                let now = new Date();
+                return result ?
+                {...result,
+                    expiration: process.env.npm_package_config_passwordExpirationDays && process.env.npm_package_config_passwordExpirationDays != "0" ?
+                        now.setDate(
+                            now.getDate() + Number(process.env.npm_package_config_passwordExpirationDays)
+                        ) : undefined,
+                    password: newPassword
+                } : {}
+            })
+        .then(userEntity.hashPassword)
+        .then(userEntity.table.update)
 });
 
 koaApp.use(auth.middleware());

@@ -1,7 +1,9 @@
 import * as React from "react";
+import classnames from "classnames"
 import { withStyles } from "@material-ui/core/styles";
 import { Button, Fade } from "@material-ui/core";
 import Progress from "./Progress"
+import selectable from '../HOCs/selectable';
 
 
 const styles = (theme) => ({
@@ -16,8 +18,10 @@ const styles = (theme) => ({
 })
 
 const iconButton = (props) => {
-    const {classes, loading, icon: Icon, ...remainder} = props;
-    return <div className={classes.container}>
+    let {classes, loading, className, icon: Icon, ...remainder} = props;
+    className = classnames(className, props.classes.container);
+
+    return <div className={className}>
                 <Button {...remainder}>
                     {props.children}
                     {Icon && <Icon className={classes.icon}/>}
@@ -34,4 +38,4 @@ const iconButton = (props) => {
             </div>
 }
 
-export default withStyles(styles)(iconButton)
+export default selectable(withStyles(styles)(iconButton))
