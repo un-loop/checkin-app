@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 
 const styles = (theme) => ({
     content: {
-        minWidth:270,
+        minWidth:220,
         [theme.breakpoints.down("sm")]:
         {
             padding: theme.spacing.unit,
@@ -17,7 +17,10 @@ const styles = (theme) => ({
         },
         [theme.breakpoints.up("sm")]:
         {
-            padding: theme.spacing.unit * 2,
+            paddingTop: theme.spacing.unit * 2,
+            paddingBottom: theme.spacing.unit * 2,
+            paddingLeft: theme.spacing.unit * 3,
+            paddingRight: theme.spacing.unit * 3,
             "&:first-child": {
                 paddingTop: theme.spacing.unit * 2
             }

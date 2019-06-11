@@ -14,7 +14,10 @@ const styles = (theme) => ({
         },
         [theme.breakpoints.up("sm")]:
         {
-            padding: theme.spacing.unit * 2
+            paddingTop: theme.spacing.unit * 2,
+            paddingBottom: theme.spacing.unit * 2,
+            paddingLeft: theme.spacing.unit * 3,
+            paddingRight: theme.spacing.unit * 3
         },
         position: "relative"
     }
