@@ -1,5 +1,5 @@
 {
-  "name": "pollproject",
+  "name": "checkin-app",
   "version": "1.0.0",
   "description": "Checkin App for Unloop events",
   "main": "./server/server.js",
@@ -25,9 +25,9 @@
   "author": "Michael Armes",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/un-loop/PollProject/issues"
+    "url": "https://github.com/un-loop/checkin-app/issues"
   },
-  "homepage": "https://github.com/un-loop/PollProject#readme",
+  "homepage": "https://github.com/un-loop/checkin-app#readme",
   "dependencies": {
     "@babel/core": "^7.4.0",
     "@babel/runtime": "^7.4.2",

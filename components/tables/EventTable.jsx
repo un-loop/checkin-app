@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Grid, Tooltip } from "@material-ui/core";
 import CreateIcon from "@material-ui/icons/Create";
-import StartIcon from "@material-ui/icons/timer";
+import StartIcon from "@material-ui/icons/Timer";
 import TableHOC from "./Table";
 import IconButton from "../widgets/IconButton";
 
