@@ -5,6 +5,7 @@ const body = require('koa-bodyparser');
 const query = require('unloop-koa-query');
 const decode = require('koa-decode-params');
 const cryptKey = process.env.npm_config_cryptKey;
+console.log(`cryptKey=${cryptKey}`);
 const crypt = require('unloop-crypt')(cryptKey);
 const Auth = require('koa-auth-wrapper');
 const context = require('koa-user-context');
