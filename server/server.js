@@ -85,4 +85,4 @@ koaApp.use(auth.middleware());
 koaApp.use(mount('/api', koaApi));
 koaApp.use(staticRouter(koaApp));
 
-koaApp.listen(3000);
+koaApp.listen(process.env.PORT || 3000);
