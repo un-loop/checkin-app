@@ -21,4 +21,4 @@ module.DbContext = class {
     }
 }
 
-module.exports = new module.DbContext("http://localhost:8000", "us-west-2");
+module.exports = new module.DbContext(process.env.npm_package_config_dynamoEndpoint, process.env.npm_package_config_dynamoRegion);

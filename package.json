@@ -6,7 +6,7 @@
   "config": {
     "environment": "development",
     "port": "3000",
-    "dynamoEndpoint": "http://localhost:8000",
+    "dynamoEndpoint": "https://apigateway.us-west-1.amazonaws.com",
     "dynamoRegion": "us-west-2",
     "saltRounds": 10,
     "passwordExpirationDays": 0
