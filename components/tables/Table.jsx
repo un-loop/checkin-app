@@ -8,7 +8,7 @@ const styles = (theme) =>({
         [theme.breakpoints.down("sm")]: {
             margin: 0,
             borderRadius: 0,
-            padding: theme.spacing.unit / 2
+            padding: Math.floor(theme.spacing.unit / 2)
         },
         [theme.breakpoints.up("sm")]: {
             margin: theme.spacing.unit,
@@ -61,7 +61,7 @@ const renderCell = (col) => (cell, cellIndex) => {
     return (
         <TableCell key={cellIndex}
                    align={col.numeric ? 'right' : 'left'}
-                   padding={col.disablePadding ? 'none' : 'default'}
+                   padding={col.disablePadding ? 'none' : 'dense'}
                    sortDirection={col.sortDirection}>
             {contents}
         </TableCell>
