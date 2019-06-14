@@ -18,6 +18,19 @@ exports.schema =  {
             { AttributeName: key, AttributeType: "S" },
             { AttributeName: rangeKey, AttributeType: "S" }
         ],
+    LocalSecondaryIndexes: [
+        {
+            IndexName: 'attendeeCheckinOrder',
+            KeySchema: [
+                { AttributeName: key, KeyType: "HASH" },
+                { AttributeName: "checkin", KeyType: "RANGE" }
+            ],
+            Projection: {
+                ProjectionType: "INCLUDE",
+                NonKeyAttributes: ["name"]
+            }
+        }
+    ],
     ProvisionedThroughput: {
         ReadCapacityUnits: 5,
         WriteCapacityUnits: 5

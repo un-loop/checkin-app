@@ -52,7 +52,7 @@ class Checkin extends React.Component {
             .get(
                 `/api/events/${this.props.eventId}/attendees/?top=${this.props.showLast}&key=${
                     this.props.eventId
-                }`
+                }&index=attendeeCheckinOrder&order=false`
             )
             .then(response => {
                 let records = (response.data)
