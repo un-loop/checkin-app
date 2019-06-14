@@ -21,4 +21,7 @@ module.DbContext = class {
     }
 }
 
-module.exports = new module.DbContext(process.env.npm_package_config_dynamoEndpoint, process.env.npm_package_config_dynamoRegion);
+const endpoint = process.env.NODE_ENV === "production" ? process.env.npm_package_config_dynamoEndpoint :
+                                                         "http://localhost:8000";
+
+module.exports = new module.DbContext(endpoint, process.env.npm_package_config_dynamoRegion);

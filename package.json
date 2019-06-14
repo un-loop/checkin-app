@@ -65,7 +65,7 @@
     "react-material-ui-form-validator": "^2.0.8",
     "react-text-mask": "^5.4.3",
     "typeface-roboto": "0.0.54",
-    "unloop-auth-session": "^1.0.0",
+    "unloop-auth-session": "^1.1.0",
     "unloop-crypt": "^1.0.0",
     "unloop-database-dynamo": "^1.2.0",
     "unloop-koa-query": "^1.1.3",

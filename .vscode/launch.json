@@ -19,7 +19,7 @@
         "env":
         {
             "npm_config_cryptKey": "fakedebugkey",
-            "npm_package_config_environment": "development",
+            "NODE_ENV": "development",
             "npm_package_config_dynamoEndpoint": "https://dynamodb.us-west-2.amazonaws.com",
             "npm_package_config_dynamoRegion": "us-west-2"
         }
