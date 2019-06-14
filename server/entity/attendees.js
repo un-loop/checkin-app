@@ -16,7 +16,8 @@ exports.schema =  {
     ],
     AttributeDefinitions: [
             { AttributeName: key, AttributeType: "S" },
-            { AttributeName: rangeKey, AttributeType: "S" }
+            { AttributeName: rangeKey, AttributeType: "S" },
+            { AttributeName: "checkin", AttributeType: "S" }
         ],
     LocalSecondaryIndexes: [
         {
