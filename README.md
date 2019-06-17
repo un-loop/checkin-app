@@ -64,7 +64,7 @@ Authentication is done by using a bcrypt hashed password. All authenticated user
 Permissions assigned to "default" for a resource apply to all actions. A user must be authorized against *both* the default and action specific permissions that correspond to any particular request in order to be authorized. After much deliberation, all unauthorized requests are given a 403 Response (never a 401). [This argumentation](https://stackoverflow.com/questions/3297048/403-forbidden-vs-401-unauthorized-http-responses/14713094#14713094) for a 403 is convincing. 
 
 ### Tests
-checkin-app currently does not have unit test (\*gasp\*). That will change. They will written in the mocha/chai/sinon stack. If you add some (thank you!), please use this stack.
+checkin-app currently does not have unit tests (\*gasp\*). That will change. They will written in the mocha/chai/sinon stack. If you add some (thank you!), please use this stack.
 
 ### Environment
 
