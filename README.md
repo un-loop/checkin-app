@@ -12,7 +12,7 @@ continous deployment against master on heroku, so we are requesting that you sub
 the develop branch, which will ease the potential disruption from any incorporation of your changes.
 
 ### Scripts
-In your dev environment, you can kick off the server with `npm dev` to launch a process under nodemon, whereas `npm start` will launch an unmonitored process. `npm build` will run webpack on the client-side React code.
+In your dev environment, you can kick off the server with `npm run dev` to launch a process under nodemon, whereas `npm start` will launch an unmonitored process. `npm run build` will run webpack on the client-side React code.
 
 ### Debugging
 There is a checked in launch.json which will enable F5 debugging on server.js in VSCode.
