@@ -70,6 +70,6 @@ const sanitizeUser = (user) => {
     return user;
 };
 
-exports.sanitizeUser = sanitizeUser;
+exports.sanitize = sanitizeUser;
 
 exports.table = new Table(this);

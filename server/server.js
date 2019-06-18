@@ -61,9 +61,9 @@ const auth = new Auth({
     encrypt: crypt.encrypt,
     decrypt: crypt.decrypt,
     localStrategy: async (username, password) =>
-        userEntity.table.get(username).then(userEntity.validatePassword(password)),
+        userEntity.table.unsafeGet(username).then(userEntity.validatePassword(password)),
     changePassword: async (user, password, newPassword) =>
-        userEntity.table.get(user.username)
+        userEntity.table.unsafeGet(user.username)
         .then(userEntity.validatePassword(password))
         .then((result) => {
                 let now = new Date();
@@ -77,7 +77,7 @@ const auth = new Auth({
                 } : {}
             })
         .then(userEntity.hashPassword)
-        .then(userEntity.table.update)
+        .then(userEntity.table.unsafeUpdate)
 });
 
 koaApp.use(auth.middleware());

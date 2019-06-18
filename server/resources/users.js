@@ -11,7 +11,7 @@ module.exports = (entity) => {
                 await users.query(ctx.dbQuery.isOrdered ? ctx.dbQuery : ctx.dbQuery.order(true)) :
                 await users.getAll();
 
-            ctx.body = users.map(entity.sanitizeUser);
+            ctx.body = users;
         },
         show: async function(ctx, next) {
             await next();
@@ -23,7 +23,7 @@ module.exports = (entity) => {
                 ctx.status = ResultCodes.NotFound;
                 ctx.body = 'Not Found';
             } else {
-                ctx.body = entity.sanitizeUser(result);
+                ctx.body = result;
             }
         },
         create: async function(ctx, next) {
