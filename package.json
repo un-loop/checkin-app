@@ -13,9 +13,9 @@
   },
   "scripts": {
     "build": "webpack --config client/webpack.config.js",
-    "build:watch": "nodemon --watch client --watch components --ignore *bundle.js --ignore *bundle.js.map -e * --exec npm run build",
+    "build:watch": "nodemon --watch client --watch components --exec npm run build",
     "server": "node server/server.js",
-    "server:watch": "nodemon --delay 3 --watch server -e * --exec npm run server",
+    "server:watch": "nodemon --delay 3 --watch server --exec npm run server",
     "dev": " npm-run-all --parallel build:watch server:watch",
     "start": "npm-run-all --serial build server"
   },
