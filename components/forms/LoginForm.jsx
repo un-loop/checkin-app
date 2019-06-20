@@ -10,14 +10,49 @@ class LoginForm extends React.Component {
 
         this.state = {
             username: "",
-            password: ""
-        }
-
+            password: "",
+            isValid: false
+        };
+        this.validityMap = {
+            username: false,
+            password: false
+        };
         this.handleInputChange = this.handleInputChange.bind(this);
+        this.renderField = this.renderField.bind(this);
+        this.validateFields = this.validateFields.bind(this);
     }
 
     handleInputChange(name, value) {
         this.setState({[name]: value});
+    }
+
+    validateFields(key, value) {
+        this.validityMap[key] = value;
+        this.setState({
+            isValid: this.validityMap.username && this.validityMap.password
+        });
+    }
+
+    renderField(props) {
+        const { fieldName, ...remainingProps } = props;
+        return (
+            <TextValidator
+                id={fieldName}
+                key={fieldName}
+                validatorListener={result => {
+                    this.validateFields(fieldName, result);
+                }}
+                onChange={e =>
+                    this.handleInputChange(fieldName, e.target.value)
+                }
+                name={fieldName}
+                margin="dense"
+                withRequiredValidator={true}
+                autoComplete="off"
+                value={this.state[fieldName]}
+                {...remainingProps}
+            />
+        );
     }
 
     render() {
@@ -31,41 +66,39 @@ class LoginForm extends React.Component {
                 loading: saving
             }
         ];
-
+        const LoginField = this.renderField;
         props.autoComplete = "off";
         props.actions = actions;
 
         return (
-            <DialogForm {...props} method="POST">
+            <DialogForm
+                {...props}
+                disabledSubmit={!this.state.isValid}
+                method="POST"
+            >
                 <FormField>
                     <input type="hidden" name="redirect" value={redirect} />
-                    <TextValidator
-                        id="username"
-                        name="username"
+                    <LoginField
+                        fieldName="username"
                         placeholder="you@example.com"
                         label="e-mail"
-                        onChange={ (e) => this.handleInputChange(e.target.name, e.target.value)}
-                        margin="dense"
-                        validators={['required', 'isEmail']}
-                        errorMessages={['enter your username', 'not a valid email address']}
-                        withRequiredValidator={true}
-                        value={this.state.username}
-                        autoComplete="off"
-                        autoFocus />
+                        validators={["required", "isEmail"]}
+                        errorMessages={[
+                            "enter your username",
+                            "not a valid email address"
+                        ]}
+                        autoFocus
+                    />
                 </FormField>
                 <FormField>
-                    <TextValidator
-                            id="password"
-                            name="password"
-                            label="Password"
-                            onChange={ (e) => this.handleInputChange(e.target.name, e.target.value)}
-                            margin="dense"
-                            validators={['required']}
-                            errorMessages={['enter your password']}
-                            withRequiredValidator={true}
-                            value={this.state.password}
-                            autoComplete="off"
-                            type="password" />
+                    <LoginField
+                        fieldName="password"
+                        label="Password"
+                        validators={["required"]}
+                        errorMessages={["enter your password"]}
+                        value={this.state.password}
+                        type="password"
+                    />
                 </FormField>
             </DialogForm>
         );

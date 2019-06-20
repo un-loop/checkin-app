@@ -39,12 +39,11 @@ class DialogForm extends React.Component {
     }
 
     render() {
-        const {disabled, classes, actions, ...props} = this.props;
+        const {disabled, disabledSubmit, classes, actions, ...props} = this.props;
 
         if (!props.onSubmit) props.onSubmit = (e) => {
             e.nativeEvent.target.submit();
         }
-
         return (
             <ValidatorForm {...props}>
                 <fieldset disabled={disabled} className={classes.fieldSet}>
@@ -59,7 +58,7 @@ class DialogForm extends React.Component {
                     {actions &&
                         <DialogActions>
                             {actions.map( ({callback, label, color, formAction, loading}, index) =>
-                                <IconButton type={formAction} key={index} disabled={disabled} loading={loading} onClick={formAction ? null : callback } color={color}>
+                                <IconButton type={formAction} key={index} disabled={disabled || disabledSubmit} loading={loading} onClick={formAction ? null : callback } color={color}>
                                     {label}
                                 </IconButton>
                             )}
