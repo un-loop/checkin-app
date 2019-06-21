@@ -3,7 +3,7 @@ import DialogForm from "../layout/DialogForm";
 import FormField from "../forms/FormField";
 import TextValidator from "react-material-ui-form-validator/lib/TextValidator";
 
-class LoginForm extends React.Component {
+class LoginForm extends React.PureComponent {
 
     constructor(props) {
         super(props);
@@ -63,7 +63,8 @@ class LoginForm extends React.Component {
                 label: "Sign In",
                 formAction: "submit",
                 color: "primary",
-                loading: saving
+                loading: saving,
+                disabled: !this.state.isValid
             }
         ];
         const LoginField = this.renderField;
@@ -71,11 +72,7 @@ class LoginForm extends React.Component {
         props.actions = actions;
 
         return (
-            <DialogForm
-                {...props}
-                disabledSubmit={!this.state.isValid}
-                method="POST"
-            >
+            <DialogForm {...props} method="POST">
                 <FormField>
                     <input type="hidden" name="redirect" value={redirect} />
                     <LoginField
@@ -96,7 +93,6 @@ class LoginForm extends React.Component {
                         label="Password"
                         validators={["required"]}
                         errorMessages={["enter your password"]}
-                        value={this.state.password}
                         type="password"
                     />
                 </FormField>
