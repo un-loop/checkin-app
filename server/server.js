@@ -57,13 +57,23 @@ koaApp.use(context( (user) => ({ // payload must hold only UI concerns, this is 
     })
 ))
 
+const mergeUser = (merge) => (user) => user ? Object.assign(user, merge) : user;
+const getUsername = async (username) =>
+    {
+        const queryObj = query.Query.GetKeyedQuery(username).set_index("username");
+        const result = await userEntity.table.unsafeQuery(queryObj);
+        return result ? result[0] : result;
+    }
+
 const auth = new Auth({
     encrypt: crypt.encrypt,
     decrypt: crypt.decrypt,
     localStrategy: async (username, password) =>
-        userEntity.table.unsafeGet(username).then(userEntity.validatePassword(password)),
+        getUsername(username)
+        .then(userEntity.validatePassword(password))
+        .then(userEntity.sanitize),
     changePassword: async (user, password, newPassword) =>
-        userEntity.table.unsafeGet(user.username)
+        userEntity.table.unsafeGet(user.userId)
         .then(userEntity.validatePassword(password))
         .then((result) => {
                 let now = new Date();
@@ -77,7 +87,12 @@ const auth = new Auth({
                 } : {}
             })
         .then(userEntity.hashPassword)
-        .then(userEntity.table.unsafeUpdate)
+        .then(userEntity.table.unsafeUpdate),
+    changeAccountDetails: async (user, details, password) =>
+        userEntity.table.unsafeGet(user.userId)
+        .then(userEntity.validatePassword(password))
+        .then(mergeUser(details))
+        .then(userEntity.table.update)
 });
 
 koaApp.use(auth.middleware());

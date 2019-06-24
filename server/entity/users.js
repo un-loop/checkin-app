@@ -1,10 +1,14 @@
+const bcrypt = require("bcrypt");
+const { v4 } = require("uuid");
 const dbContext = require("../dbcontext");
 const Table = require("unloop-database-dynamo")(dbContext.db, dbContext.docClient);
-const bcrypt = require("bcrypt");
 
-const key = "username";
+const key = "userId";
 
 exports.key = key;
+exports.indexKey = {
+    "username": "username"
+}
 
 exports.schema =  {
     TableName : "User",
@@ -14,7 +18,23 @@ exports.schema =  {
     ],
     AttributeDefinitions: [
             { AttributeName: key, AttributeType: "S" },
-        ],
+            { AttributeName: "username", AttributeType: "S" },
+    ],
+    GlobalSecondaryIndexes: [
+        {
+            IndexName: 'username',
+            KeySchema: [
+                { AttributeName: "username", KeyType: "HASH" }
+            ],
+            Projection: {
+                ProjectionType: "ALL"
+            },
+            ProvisionedThroughput: {
+                ReadCapacityUnits: 5,
+                WriteCapacityUnits: 5
+            }
+        }
+    ],
     ProvisionedThroughput: {
         ReadCapacityUnits: 5,
         WriteCapacityUnits: 5
@@ -24,6 +44,7 @@ exports.schema =  {
 exports.initialData = () => hashPassword("changeme").then(
     hash => [
         {
+            userId: v4(),
             username: "admin@un-loop.org",
             name: "Unloop Administrator",
             password: hash,
@@ -52,9 +73,9 @@ const hashPassword = (password) =>
     );
 
 const validatePassword = (password) => (user) =>
-    user ?  new Promise(
+    user ? new Promise(
         (resolve, reject) =>
-            bcrypt.compare(password, user.password, (err, res) => err ? reject(err) : resolve(res ? sanitizeUser(user) : res))
+            bcrypt.compare(password, user.password, (err, res) => err ? reject(err) : resolve(res ? user : res))
     ) :
     Promise.resolve(false);
 
@@ -66,7 +87,10 @@ exports.hashPassword = (user) => hashPassword(user.password).then(hash => {
 exports.validatePassword = validatePassword;
 
 const sanitizeUser = (user) => {
-    delete user.password;
+    if (user) {
+        delete user.password;
+    }
+
     return user;
 };
 

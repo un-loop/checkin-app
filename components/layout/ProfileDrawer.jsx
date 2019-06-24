@@ -7,6 +7,8 @@ import selectable from '../HOCs/selectable'
 import InlineEditor from '../widgets/InlineEditor'
 import InlineError from '../layout/InlineError'
 import ChangePasswordForm from '../forms/ChangePasswordForm'
+import ChangeEmailForm from '../forms/ChangeEmailForm'
+
 import axios from "axios";
 
 const styles = (theme) => ({
@@ -72,12 +74,17 @@ class ProfileDrawer extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = { showPasswordEditor: false, saveError: null };
+        this.state = { showPasswordEditor: false,
+                       showEmailEditor:false,
+                       passwordSaveError: null,
+                       emailSaveError: null };
         this.onChangePassword = this.onChangePassword.bind(this);
+        this.onChangeEmail = this.onChangeEmail.bind(this);
     }
 
     onChangePassword(data) {
-        axios.post("/account/changePassword/", data)
+        const {confirm, ...postData} = data;
+        axios.post("/account/changePassword/", postData)
             .then(() => this.setState({showPasswordEditor: false}))
             .then( () => {
                 this.setState({});
@@ -85,7 +92,25 @@ class ProfileDrawer extends React.Component {
             (ex) => {
                 let message = ex.request.status === 403 ? "Invalid credentials" : ex.message
                 this.setState({
-                    saveError: {
+                    passwordSaveError: {
+                        message: message,
+                        errorKey: Date.now()
+                    }
+                })
+            });
+    }
+
+    onChangeEmail(data) {
+        const {confirm, ...postData} = data;
+        axios.post("/account/changeAccountDetails/", postData)
+            .then(() => this.setState({showEmailEditor: false}))
+            .then( () => {
+                this.setState({});
+            },
+            (ex) => {
+                let message = ex.request.status === 403 ? "Invalid credentials" : ex.message
+                this.setState({
+                    emailSaveError: {
                         message: message,
                         errorKey: Date.now()
                     }
@@ -105,10 +130,13 @@ class ProfileDrawer extends React.Component {
             <SwipeableDrawer className={className} {...remaining}>
                 <ProfileSection title="Account">
                     <InlineEditor link="change password" onLinkClick={toggleFlag("showPasswordEditor", true)} isEditing={this.state.showPasswordEditor} >
-                        <FullWidthError error={this.state.saveError} />
+                        <FullWidthError error={this.state.passwordSaveError} />
                         <ChangePasswordForm onCancel={toggleFlag("showPasswordEditor", false)} onSave={this.onChangePassword} />
                     </InlineEditor>
-                    <InlineEditor link="change email" />
+                    <InlineEditor link="change email" onLinkClick={toggleFlag("showEmailEditor", true)} isEditing={this.state.showEmailEditor} >
+                        <FullWidthError error={this.state.emailSaveError} />
+                        <ChangeEmailForm onCancel={toggleFlag("showEmailEditor", false)} onSave={this.onChangeEmail} />
+                    </InlineEditor>
                 </ProfileSection>
                 <ProfileSection title="Profile">
                     {user.name}
