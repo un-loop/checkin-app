@@ -58,8 +58,8 @@ class DialogForm extends React.Component {
                     </DialogContent>
                     {actions &&
                         <DialogActions>
-                            {actions.map( ({callback, label, color, formAction, loading}, index) =>
-                                <IconButton type={formAction} key={index} disabled={disabled} loading={loading} onClick={formAction ? null : callback } color={color}>
+                            {actions.map( ({callback, label, color, formAction, loading, disabled: actionDisabled}, index) =>
+                                <IconButton type={formAction} key={index} disabled={disabled || actionDisabled} loading={loading} onClick={formAction ? null : callback } color={color}>
                                     {label}
                                 </IconButton>
                             )}
