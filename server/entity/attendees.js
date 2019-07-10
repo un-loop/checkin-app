@@ -7,6 +7,10 @@ const rangeKey = "attendeeId";
 exports.key = key;
 exports.rangeKey = rangeKey;
 
+exports.indexKey = {
+    attendeeCheckinOrder: key
+}
+
 exports.schema =  {
     TableName : "Attendee",
     BillingMode: "PROVISIONED",

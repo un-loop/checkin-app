@@ -1,24 +1,23 @@
-const { v4 } = require("uuid");
 const ResultCodes =require("../resultCodes");
 
 module.exports = (entity) => {
-    const users = entity.table;
+    const profiles = entity.table;
 
     return {
         index: async function(ctx, next) {
             await next();
 
-            const users = ctx.dbQuery ?
-                await users.query(ctx.dbQuery.isOrdered ? ctx.dbQuery : ctx.dbQuery.order(true)) :
-                await users.getAll();
+            const profiles = ctx.dbQuery ?
+                await profiles.query(ctx.dbQuery.isOrdered ? ctx.dbQuery : ctx.dbQuery.order(true)) :
+                await profiles.getAll();
 
-            ctx.body = users;
+            ctx.body = profiles;
         },
         show: async function(ctx, next) {
             await next();
 
             if (!ctx.params.user) ctx.throw(ResultCodes.BadRequest, 'userId required');
-            var result = await users.get(ctx.params.userId);
+            var result = await profiles.get(ctx.params.user);
 
             if (!result) {
                 ctx.status = ResultCodes.NotFound;
@@ -29,46 +28,49 @@ module.exports = (entity) => {
         },
         create: async function(ctx, next) {
             await next();
-            if (!ctx.request.body || !ctx.request.body.roles) ctx.throw(ResultCodes.BadRequest, '.roles required');
-            let user = (({ roles }) => ({ userId: v4(), roles }))(ctx.request.body);
 
-            await users.create(user)
-                .then( (user) => {
+            if (!ctx.params.user) ctx.throw(ResultCodes.BadRequest, 'userId required');
+
+            if (!ctx.request.body || !ctx.request.body.name) ctx.throw(ResultCodes.BadRequest, '.name required');
+            let profile = (({name }) => ({ userId: ctx.params.user, name }))(ctx.request.body);
+
+            await profiles.create(profile)
+                .then( (profile) => {
                     ctx.status = ResultCodes.Created;
-                    ctx.body = JSON.stringify(user);
+                    ctx.body = JSON.stringify(profile);
                 }, (err) => {
                     ctx.status = ResultCodes.Error;
-                    ctx.body = "Failed to create user";
+                    ctx.body = "Failed to create profile";
                 });
         },
         update: async function(ctx, next) {
             await next();
+
             if (!ctx.params.user) ctx.throw(ResultCodes.BadRequest, 'userId required');
-            if (!ctx.request.body || !ctx.request.body.roles) ctx.throw(ResultCodes.BadRequest, '.roles required');
 
-            let user = (({ roles }) => ({ userId: ctx.params.user, roles }))(ctx.request.body);
+            let profile = (({ name }) => ({ userId: ctx.params.user, name }))(ctx.request.body);
 
-            await users.update(user)
-                .then( (user) => {
+            await profiles.update(profile)
+                .then( (profile) => {
                     ctx.status = ResultCodes.Created;
-                    ctx.body = JSON.stringify(user);
+                    ctx.body = JSON.stringify(profile);
                 }, (err) => {
                     ctx.status = ResultCodes.Error;
-                    ctx.body = "Failed to create user";
+                    ctx.body = "Failed to update profile";
                 });
         },
         destroy: async function(next) {
             await next();
             if (!ctx.params.user) ctx.throw(ResultCodes.BadRequest, 'userId required');
 
-            await users.delete(ctx.params.user)
+            await profiles.delete(ctx.params.user)
             .then(
                 () => {
                     ctx.status = ResultCodes.Success;
                     ctx.body = "Deleted";
                 }, (err) => {
                     ctx.status = ResultCodes.Error;
-                    ctx.body = "Failed to delete user";
+                    ctx.body = "Failed to delete profile";
                 }
             )
         }
@@ -76,5 +78,10 @@ module.exports = (entity) => {
 };
 
 module.exports.permissions = {
-    default: ["admin"]
+    default: ["user"],
+    index: ["admin"],
+    show: ["admin"],
+    create: ["admin"],
+    update: ["admin", (user, body, params) => user.userId === params.userId],
+    destroy: ["admin"]
 }

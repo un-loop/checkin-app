@@ -32,13 +32,19 @@ const staticRouter = require('unloop-static-router')( path.resolve(__dirname, ".
 );
 
 const userEntity = require("./entity/users");
+const credentialEntity = require("./entity/credentials");
+const profileEntity = require("./entity/profiles")
 
 const builderWithMiddleware = resourceBuilder(query(), decode());
 
 const events = builderWithMiddleware('events');
 const attendees = builderWithMiddleware('attendees');
 const users = builderWithMiddleware('users');
+const credentials = builderWithMiddleware('credentials');
+const profiles = builderWithMiddleware('profiles');
 events.add(attendees);
+users.add(credentials);
+users.add(profiles);
 
 const koaApi = new koa();
 koaApi.use(events.middleware());
@@ -57,42 +63,48 @@ koaApp.use(context( (user) => ({ // payload must hold only UI concerns, this is 
     })
 ))
 
-const mergeUser = (merge) => (user) => user ? Object.assign(user, merge) : user;
-const getUsername = async (username) =>
-    {
-        const queryObj = query.Query.GetKeyedQuery(username).set_index("username");
-        const result = await userEntity.table.unsafeQuery(queryObj);
-        return result ? result[0] : result;
-    }
-
 const auth = new Auth({
     encrypt: crypt.encrypt,
     decrypt: crypt.decrypt,
-    localStrategy: async (username, password) =>
-        getUsername(username)
-        .then(userEntity.validatePassword(password))
-        .then(userEntity.sanitize),
-    changePassword: async (user, password, newPassword) =>
-        userEntity.table.unsafeGet(user.userId)
-        .then(userEntity.validatePassword(password))
-        .then((result) => {
-                let now = new Date();
-                return result ?
-                {...result,
-                    expiration: process.env.npm_package_config_passwordExpirationDays && process.env.npm_package_config_passwordExpirationDays != "0" ?
-                        now.setDate(
-                            now.getDate() + Number(process.env.npm_package_config_passwordExpirationDays)
-                        ) : undefined,
-                    password: newPassword
-                } : {}
-            })
-        .then(userEntity.hashPassword)
-        .then(userEntity.table.unsafeUpdate),
-    changeAccountDetails: async (user, details, password) =>
-        userEntity.table.unsafeGet(user.userId)
-        .then(userEntity.validatePassword(password))
-        .then(mergeUser(details))
-        .then(userEntity.table.update)
+    localStrategy: async (username, password) => {
+        const credentials = await credentialEntity.table.unsafeGet(username);
+        if (!await credentialEntity.validatePassword(password)(credentials)) {
+            return false;
+        }
+
+        credentialEntity.sanitize(credentials); // remove password
+        const user = await userEntity.table.get(credentials.userId);
+        const profile = await profileEntity.table.get(credentials.userId);
+        return Object.assign(credentials, user, profile); // join tables
+    },
+    changePassword: async (user, password, newPassword) => {
+        const credentials = await credentialEntity.table.unsafeGet(user.username);
+        if (!await credentialEntity.validatePassword(password)(credentials)) {
+            return false;
+        }
+
+        credentials.expiration = process.env.npm_package_config_passwordExpirationDays && process.env.npm_package_config_passwordExpirationDays != "0" ?
+            now.setDate(
+                now.getDate() + Number(process.env.npm_package_config_passwordExpirationDays)
+            ) : undefined;
+        credentials.password = newPassword;
+        await credentialEntity.hashPassword(credentials);
+        return await credentialEntity.table.unsafeUpdate(credentials);
+    },
+    changeAccountDetails: async (user, details, password) => {
+        const credentials = await credentialEntity.table.unsafeGet(user.username);
+        if (!await credentialEntity.validatePassword(password)(credentials)) {
+            return false;
+        }
+
+        Object.assign(credentials, details);
+
+        //need to wrap in transaction
+        await credentialEntity.table.create(credentials);
+        await credentialEntity.table.delete(user.username);
+
+        return true;
+    }
 });
 
 koaApp.use(auth.middleware());
