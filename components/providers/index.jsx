@@ -7,14 +7,21 @@ export { default as UserContextProvider } from "./UserContextProvider";
 export * from "./UserContextProvider";
 
 export const ProviderWrapper = (props) => {
+    const initialContext = {
+        setUser: () => {
+            const results = document.cookie.match('(^|[^;]+)\\s*user-context\\s*=\\s*([^;]+)');
+            const newContext = Object.assign({}, initialContext, JSON.parse(results.pop()));
+            setUser(newContext);
+        }
+    };
+    const [user,setUser] = React.useState(initialContext);
     const { children } = props;
 
-    const results = document.cookie.match('(^|[^;]+)\\s*user-context\\s*=\\s*([^;]+)');
-    const context = results ? JSON.parse(results.pop()) : null;
+    if (user.isLoggedIn === undefined) user.setUser();
 
     return (
         <MuiThemeProvider theme={Theme}>
-            <UserContextProvider user={context}>
+            <UserContextProvider user={user}>
                 {children}
             </UserContextProvider>
         </MuiThemeProvider>

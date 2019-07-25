@@ -5,16 +5,18 @@ import {TextValidator, ValidatorForm } from "react-material-ui-form-validator";
 import InlineForm from "../layout/InlineForm";
 import {withUserContext} from "../providers/UserContextProvider"
 
+const defaultState = {
+    password: "",
+    username: "",
+    confirm: ""
+};
+
 class ChangeEmailForm extends React.Component {
 
     constructor(props) {
         super(props);
 
-        this.state = {
-            password: "",
-            username: "",
-            confirm: ""
-        }
+        this.state = defaultState;
 
         this.handleInputChange = this.handleInputChange.bind(this);
         this.save = this.save.bind(this);
@@ -37,7 +39,15 @@ class ChangeEmailForm extends React.Component {
 
     save(e) {
         e.preventDefault();
-        this.props.onSave && this.props.onSave(this.state);
+        if (this.props.onSave) {
+            this.props.onSave(this.state)
+                .then((result) => {
+                    if (result) {
+                        this.setState(defaultState);
+                        this.formRef && this.formRef.resetValidations();
+                    }
+                });
+        }
     }
 
     cancel(e) {
@@ -46,7 +56,7 @@ class ChangeEmailForm extends React.Component {
     }
 
     render() {
-        const {saving, onSave,onCancel, ...props} = this.props;
+        const {saving, onSave,onCancel, inputRef, ...props} = this.props;
 
         const actions = [
             {
@@ -69,10 +79,10 @@ class ChangeEmailForm extends React.Component {
         props.actions = actions;
 
         return (
-            <InlineForm {...props}>
+            <InlineForm {...props} innerRef={(ref) => this.formRef = ref }>
                 <FormField>
                     <TextValidator
-                            id="password"
+                            id="email-password"
                             name="password"
                             label="Current Password"
                             onChange={ (e) => this.handleInputChange(e.target.name, e.target.value)}
@@ -82,11 +92,12 @@ class ChangeEmailForm extends React.Component {
                             withRequiredValidator={true}
                             value={this.state.password}
                             autoComplete="off"
+                            inputRef={inputRef}
                             type="password" />
                 </FormField>
                 <FormField>
                     <TextValidator
-                            id="username"
+                            id="email-username"
                             name="username"
                             label="New Email"
                             onChange={ (e) => this.handleInputChange(e.target.name, e.target.value)}
@@ -100,7 +111,7 @@ class ChangeEmailForm extends React.Component {
                 </FormField>
                 <FormField>
                     <TextValidator
-                            id="confirm"
+                            id="email-confirm"
                             name="confirm"
                             label="Confirm Email"
                             onChange={ (e) => this.handleInputChange(e.target.name, e.target.value)}

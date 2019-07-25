@@ -27,16 +27,22 @@ const styles = (theme) => ({
     }
 });
 
+let formRef;
+
 class InlineForm extends React.Component {
     constructor(props) {
         super(props);
+    }
+
+    resetValidations() {
+        if (formRef) formRef.resetValidations();
     }
 
     render() {
         const {disabled, classes, actions, ...props} = this.props;
 
         return (
-            <ValidatorForm {...props}>
+            <ValidatorForm {...props} ref={(ref) => formRef = ref}>
                 <fieldset disabled={disabled} className={classes.fieldSet}>
                     <div className={classes.content}>
                         <Grid container

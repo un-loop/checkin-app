@@ -10,12 +10,14 @@ const Auth = require('koa-auth-wrapper');
 const context = require('koa-user-context');
 const session = require('unloop-auth-session');
 const resourceBuilder = require('unloop-resource-builder')(__dirname);
+const credentialEntity = require("./entity/credentials");
+const getUserContext = require("./getUserContext");
 const staticRouter = require('unloop-static-router')( path.resolve(__dirname, "../client"),
 [
     {
         route: '/',
-        permissions: ['admin']}
-    ,
+        permissions: ['admin']
+    },
     {
         route: '/admin',
         permissions: ['admin']
@@ -28,12 +30,7 @@ const staticRouter = require('unloop-static-router')( path.resolve(__dirname, ".
         route: '/image',
         permissions: []
     }
-]
-);
-
-const userEntity = require("./entity/users");
-const credentialEntity = require("./entity/credentials");
-const profileEntity = require("./entity/profiles")
+]);
 
 const builderWithMiddleware = resourceBuilder(query(), decode());
 
@@ -58,8 +55,9 @@ koaApp.use(session(koaApp, cryptKey));
 koaApp.use(context( (user) => ({ // payload must hold only UI concerns, this is exposed to the browser and is not secure
         username: user ? user.username : "",
         name: user ?  user.name : "",
-        isAdmin: user ? user.roles.findIndex((item) => item === "super" || item === "admin" ) !== -1 : false,
-        isLoggedIn: Boolean(user)
+        isAdmin: user && user.roles ? user.roles.findIndex((item) => item === "super" || item === "admin" ) !== -1 : false,
+        isLoggedIn: Boolean(user),
+        userId: user ? user.userId : ""
     })
 ))
 
@@ -67,15 +65,29 @@ const auth = new Auth({
     encrypt: crypt.encrypt,
     decrypt: crypt.decrypt,
     localStrategy: async (username, password) => {
-        const credentials = await credentialEntity.table.unsafeGet(username);
-        if (!await credentialEntity.validatePassword(password)(credentials)) {
+        const context = await credentialEntity.table.unsafeGet(username);
+        if (!await credentialEntity.validatePassword(password)(context)) {
             return false;
         }
 
-        credentialEntity.sanitize(credentials); // remove password
-        const user = await userEntity.table.get(credentials.userId);
-        const profile = await profileEntity.table.get(credentials.userId);
-        return Object.assign(credentials, user, profile); // join tables
+        await getUserContext(context);
+
+        return context;
+    },
+    updateUser: async (u) => {
+        const userId = u.userId;
+        const tmpQuery = query.Query.GetKeyedQuery(userId)
+                                    .withIndex(credentialEntity.userIdQuery);
+        const credentials = await credentialEntity.table.query(tmpQuery);
+
+        if (!credentials || !credentials.length) {
+            return false;
+        }
+
+        const context = credentials[0];
+        await getUserContext(context);
+
+        return context;
     },
     changePassword: async (user, password, newPassword) => {
         const credentials = await credentialEntity.table.unsafeGet(user.username);
@@ -99,7 +111,7 @@ const auth = new Auth({
 
         Object.assign(credentials, details);
 
-        //need to wrap in transaction
+        //TODO: wrap in transaction
         await credentialEntity.table.create(credentials);
         await credentialEntity.table.delete(user.username);
 
@@ -109,6 +121,6 @@ const auth = new Auth({
 
 koaApp.use(auth.middleware());
 koaApp.use(mount('/api', koaApi));
-koaApp.use(staticRouter(koaApp));
+koaApp.use(staticRouter());
 
 koaApp.listen(process.env.PORT || 3000);

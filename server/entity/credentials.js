@@ -4,7 +4,14 @@ const Table = require("unloop-database-dynamo")(dbContext.db, dbContext.docClien
 
 const key = "username";
 
+const userIdQuery = "CredentialUserId";
+const indexKey = {
+    [userIdQuery]: 'userId'
+};
+
 exports.key = key;
+exports.indexKey = indexKey;
+exports.userIdQuery = userIdQuery;
 
 exports.schema =  {
     TableName : "Credential",
@@ -14,11 +21,30 @@ exports.schema =  {
     ],
     AttributeDefinitions: [
             { AttributeName: key, AttributeType: "S" },
+            { AttributeName: "userId", AttributeType: "S" },
     ],
     ProvisionedThroughput: {
         ReadCapacityUnits: 5,
         WriteCapacityUnits: 5
-    }
+    },
+    GlobalSecondaryIndexes: [
+        {
+          IndexName: userIdQuery,
+          KeySchema: [
+            {
+              AttributeName: 'userId',
+              KeyType: "HASH"
+            }
+          ],
+          Projection: {
+            ProjectionType: "ALL"
+          },
+          ProvisionedThroughput: {
+            ReadCapacityUnits: 5,
+            WriteCapacityUnits: 5
+          }
+        }
+      ],
 };
 
 exports.initialData = () => hashPassword("changeme").then(

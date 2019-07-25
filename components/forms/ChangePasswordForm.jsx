@@ -3,16 +3,18 @@ import FormField from "./FormField";
 import {TextValidator, ValidatorForm } from "react-material-ui-form-validator";
 import InlineForm from "../layout/InlineForm";
 
+const defaultState = {
+    password: "",
+    newPassword: "",
+    confirm: ""
+};
+
 class ChangePasswordForm extends React.Component {
 
     constructor(props) {
         super(props);
 
-        this.state = {
-            password: "",
-            newPassword: "",
-            confirm: ""
-        }
+        this.state = defaultState;
 
         this.handleInputChange = this.handleInputChange.bind(this);
         this.save = this.save.bind(this);
@@ -35,7 +37,13 @@ class ChangePasswordForm extends React.Component {
 
     save(e) {
         e.preventDefault();
-        this.props.onSave && this.props.onSave(this.state);
+        if (this.props.onSave) {
+            this.props.onSave(this.state)
+                .then((result) => {
+                    if (result) this.setState(defaultState);
+                    this.formRef && this.formRef.resetValidations();
+                });
+        }
     }
 
     cancel(e) {
@@ -44,7 +52,7 @@ class ChangePasswordForm extends React.Component {
     }
 
     render() {
-        const {saving, onSave,onCancel, ...props} = this.props;
+        const {saving, onSave,onCancel, inputRef, ...props} = this.props;
 
         const actions = [
             {
@@ -67,10 +75,10 @@ class ChangePasswordForm extends React.Component {
         props.actions = actions;
 
         return (
-            <InlineForm {...props}>
+            <InlineForm {...props} innerRef={(ref) => this.formRef = ref}>
                 <FormField>
                     <TextValidator
-                            id="password"
+                            id="password-password"
                             name="password"
                             label="Current Password"
                             onChange={ (e) => this.handleInputChange(e.target.name, e.target.value)}
@@ -80,11 +88,12 @@ class ChangePasswordForm extends React.Component {
                             withRequiredValidator={true}
                             value={this.state.password}
                             autoComplete="off"
+                            inputRef={inputRef}
                             type="password" />
                 </FormField>
                 <FormField>
                     <TextValidator
-                            id="newPassword"
+                            id="password-newPassword"
                             name="newPassword"
                             label="New Password"
                             onChange={ (e) => this.handleInputChange(e.target.name, e.target.value)}
@@ -98,7 +107,7 @@ class ChangePasswordForm extends React.Component {
                 </FormField>
                 <FormField>
                     <TextValidator
-                            id="confirm"
+                            id="password-confirm"
                             name="confirm"
                             label="Confirm Password"
                             onChange={ (e) => this.handleInputChange(e.target.name, e.target.value)}
