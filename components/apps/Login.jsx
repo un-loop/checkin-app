@@ -21,7 +21,7 @@ class Login extends React.Component {
         return (
             <Page>
                 <ResponsiveDialog open={true}>
-                    <DialogErrorTitle>
+                    <DialogErrorTitle error={this.props.error}>
                         <Grid container justify="flex-start" alignItems="center" spacing={8}>
                             <Grid item>
                                 <Avatar className={classes.avatar}>

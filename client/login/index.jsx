@@ -6,6 +6,11 @@ import { parse } from "querystring";
 let values = parse(window.location.search.substring(1));
 
 ReactDOM.render(
-    <Login redirect={values["redirect"]} />,
+    <Login redirect={values["redirect"]}
+        error={
+            values["message"] ?
+              { errorKey:Date.now(), message: values["message"]}
+            : null
+        }/>,
     document.getElementById("login")
 );
