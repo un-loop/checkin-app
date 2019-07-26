@@ -29,8 +29,8 @@ class InlineEditor extends React.Component {
 
             return (
                 <div {...remaining}>
-                    <Collapse timeout="auto" in={isEditing} >
-                        {children}
+                    <Collapse timeout="auto" in={isEditing} mountOnEnter={true} unmountOnExit={true} >
+                        { children }
                     </Collapse>
                     {!isEditing && link &&
                         <ButtonBase onClick={onLinkClick}>
