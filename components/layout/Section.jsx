@@ -1,5 +1,5 @@
 import * as React from "react";
-import { withStyles, Paper } from "@material-ui/core";
+import { withStyles, Paper, Typography } from "@material-ui/core";
 import ErrorMessage from "../widgets/ErrorMessage";
 import PropTypes from 'prop-types';
 
@@ -18,6 +18,9 @@ const style = (theme) => ({
             margin: theme.spacing.unit * 4,
             padding: theme.spacing.unit * 4
         }
+    },
+    title: {
+        marginBottom: theme.spacing.unit
     }
 });
 
@@ -30,6 +33,11 @@ const Section = (props) => {
                     <span>{props.error.message}</span>
                 </ErrorMessage>
             : null
+            }
+            { props.title &&
+                <Typography variant="h2" className={classes.title}>
+                    {props.title}
+                </Typography>
             }
             {props.children}
         </Paper>

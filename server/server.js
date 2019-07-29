@@ -12,25 +12,10 @@ const session = require('unloop-auth-session');
 const resourceBuilder = require('unloop-resource-builder')(__dirname);
 const credentialEntity = require("./entity/credentials");
 const getUserContext = require("./getUserContext");
-const staticRouter = require('unloop-static-router')( path.resolve(__dirname, "../client"),
-[
-    {
-        route: '/',
-        permissions: ['admin']
-    },
-    {
-        route: '/admin',
-        permissions: ['admin']
-    },
-    {
-        route: '/check-in',
-        permissions: ['admin']
-    },
-    {
-        route: '/image',
-        permissions: []
-    }
-]);
+const ResultCodes = require("./resultCodes");
+const errorPage = require("./errorPage")
+const StatusRouter = require("koa-status-router");
+const StaticRouter = require('unloop-static-router');
 
 const builderWithMiddleware = resourceBuilder(query(), decode());
 
@@ -121,6 +106,34 @@ const auth = new Auth({
 
 koaApp.use(auth.middleware());
 koaApp.use(mount('/api', koaApi));
-koaApp.use(staticRouter());
+
+const statusRouter = new StatusRouter();
+const staticRouter = new StaticRouter({
+    root: path.resolve(__dirname, "../client"),
+    routes: [
+        {
+            route: '/',
+            permissions: ['admin']
+        },
+        {
+            route: '/admin',
+            permissions: ['admin']
+        },
+        {
+            route: '/check-in',
+            permissions: ['admin']
+        },
+        {
+            route: '/image',
+            permissions: []
+        }
+    ]
+});
+
+statusRouter.all(ResultCodes.NotFound, errorPage);
+statusRouter.all(ResultCodes.Forbidden, errorPage);
+statusRouter.all(ResultCodes.Error, errorPage);
+staticRouter.use(statusRouter.middleware());
+koaApp.use(staticRouter.middleware());
 
 koaApp.listen(process.env.PORT || 3000);
