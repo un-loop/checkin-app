@@ -15,7 +15,7 @@ module.exports = async (ctx, next) => {
 
     const content = ctx.status && pages[ctx.status] ?
         await fs.readFile(pages[ctx.status]) :
-        fs.readFile(pages["generic"]);
+        await fs.readFile(pages["generic"]);
     ctx.body = content;
     ctx.status = status;
     ctx.type = "text/html";
