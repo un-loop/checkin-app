@@ -1,92 +1,104 @@
-const ResultCodes =require("../resultCodes");
+const ResultCodes =require('../resultCodes');
 
 module.exports = (entity) => {
-    const credentials = entity.table;
+  const credentials = entity.table;
 
-    return {
-        index: async function(ctx, next) {
-            await next();
+  return {
+    index: async function(ctx, next) {
+      await next();
+      const query = ctx.dbQuery;
+      if (query && !ctx.dbQuery.isOrdered) {
+        query = query.order(true);
+      }
 
-            const credential = ctx.dbQuery ?
-                await credentials.query(ctx.dbQuery.isOrdered ? ctx.dbQuery : ctx.dbQuery.order(true)) :
-                await credentials.getAll();
+      const credential = ctx.dbQuery ?
+        await credentials.query(query) :
+        await credentials.getAll();
 
-            ctx.body = credential;
-        },
-        show: async function(ctx, next) {
-            await next();
+      ctx.body = credential;
+    },
+    show: async function(ctx, next) {
+      await next();
 
-            if (!ctx.params.credential) ctx.throw(ResultCodes.BadRequest, 'username required');
+      if (!ctx.params.credential) {
+        ctx.throw(ResultCodes.BadRequest, 'username required');
+      }
+      const result = await credentials.get(ctx.params.credential);
 
-            var result = await credentials.get(ctx.params.credential);
+      if (!result) {
+        ctx.status = ResultCodes.NotFound;
+        ctx.body = 'Not Found';
+      } else {
+        ctx.body = result;
+      }
+    },
+    create: async function(ctx, next) {
+      await next();
+      if (!ctx.request.body || !ctx.request.body.username ||
+        !ctx.request.body.password || !ctx.request.body.userId) {
+        ctx.throw(ResultCodes.BadRequest,
+            '.username, .password, .userId required');
+      }
 
-            if (!result) {
-                ctx.status = ResultCodes.NotFound;
-                ctx.body = 'Not Found';
-            } else {
-                ctx.body = result;
-            }
-        },
-        create: async function(ctx, next) {
-            await next();
-            if (!ctx.request.body || !ctx.request.body.username || !ctx.request.body.password || !ctx.request.body.userId) {
-                ctx.throw(ResultCodes.BadRequest, '.username, .password, .userId required');
-            }
+      const credential = (({username, password, userId}) =>
+        ({username, password, userId}))(ctx.request.body);
 
-            let credential = (({ username, password, userId }) => ({ username, password, userId }))(ctx.request.body);
+      await entity.hashPassword(credential)
+          .then(credentials.create)
+          .then( (credential) => {
+            ctx.status = ResultCodes.Created;
+            ctx.body = JSON.stringify(credential);
+          }, (err) => {
+            ctx.status = ResultCodes.Error;
+            ctx.body = 'Failed to create credentials';
+          });
+    },
+    update: async function(ctx, next) {
+      await next();
+      if (!ctx.params.credential) {
+        ctx.throw(ResultCodes.BadRequest, 'username required');
+      }
+      if (!ctx.request.body || !ctx.request.body.password) {
+        ctx.throw(ResultCodes.BadRequest, '.password required');
+      }
 
-            await entity.hashPassword(credential)
-                .then(credentials.create)
-                .then( (credential) => {
-                    ctx.status = ResultCodes.Created;
-                    ctx.body = JSON.stringify(credential);
-                }, (err) => {
-                    ctx.status = ResultCodes.Error;
-                    ctx.body = "Failed to create credentials";
-                });
-        },
-        update: async function(ctx, next) {
-            await next();
-            if (!ctx.params.credential) ctx.throw(ResultCodes.BadRequest, 'username required');
-            if (!ctx.request.body || !ctx.request.body.password) {
-                ctx.throw(ResultCodes.BadRequest, '.password required');
-            }
+      const credential = (({password}) =>
+        ({username: ctx.params.credential, password}))(ctx.request.body);
 
-            let credential = (({ password }) => ({ username: ctx.params.credential, password, expiration: undefined }))(ctx.request.body);
-
-            await entity.hashPassword(credential)
-                .then(credentials.update)
-                .then( (credential) => {
-                    ctx.status = ResultCodes.Created;
-                    ctx.body = JSON.stringify(credential);
-                }, (err) => {
-                    ctx.status = ResultCodes.Error;
-                    ctx.body = "Failed to update credentials";
-                });
-        },
-        destroy: async function(next) {
-            await next();
-            if (!ctx.params.credential) ctx.throw(ResultCodes.BadRequest, 'username required');
-
-            await credentials.delete(ctx.params.credential)
-            .then(
-                () => {
-                    ctx.status = ResultCodes.Success;
-                    ctx.body = "Deleted";
-                }, (err) => {
-                    ctx.status = ResultCodes.Error;
-                    ctx.body = "Failed to delete credentials";
-                }
-            )
-        }
-    }
+      await entity.hashPassword(credential)
+          .then(credentials.update)
+          .then( (credential) => {
+            ctx.status = ResultCodes.Created;
+            ctx.body = JSON.stringify(credential);
+          }, (err) => {
+            ctx.status = ResultCodes.Error;
+            ctx.body = 'Failed to update credentials';
+          });
+    },
+    destroy: async function(next) {
+      await next();
+      if (!ctx.params.credential) {
+        ctx.throw(ResultCodes.BadRequest, 'username required');
+      }
+      await credentials.delete(ctx.params.credential)
+          .then(
+              () => {
+                ctx.status = ResultCodes.Success;
+                ctx.body = 'Deleted';
+              }, (err) => {
+                ctx.status = ResultCodes.Error;
+                ctx.body = 'Failed to delete credentials';
+              }
+          );
+    },
+  };
 };
 
 module.exports.permissions = {
-    default: ["user"],
-    index: ["admin"],
-    show: ["admin"],
-    create: ["admin"],
-    update: ["admin"],
-    destroy: ["admin"]
-}
+  default: ['user'],
+  index: ['admin'],
+  show: ['admin'],
+  create: ['admin'],
+  update: ['admin'],
+  destroy: ['admin'],
+};

@@ -1,32 +1,33 @@
-const dbContext = require("../dbcontext");
-const Table = require("unloop-database-dynamo")(dbContext.db, dbContext.docClient);
+const dbContext = require('../dbcontext');
+const Table =
+  require('unloop-database-dynamo')(dbContext.db, dbContext.docClient);
 
-const key = "userId";
+const key = 'userId';
 
 exports.key = key;
 
-exports.schema =  {
-    TableName : "User",
-    BillingMode: "PROVISIONED",
-    KeySchema: [
-        { AttributeName: key, KeyType: "HASH"}
-    ],
-    AttributeDefinitions: [
-            { AttributeName: key, AttributeType: "S" }
-    ],
-    ProvisionedThroughput: {
-        ReadCapacityUnits: 5,
-        WriteCapacityUnits: 5
-    }
+exports.schema = {
+  TableName: 'User',
+  BillingMode: 'PROVISIONED',
+  KeySchema: [
+    {AttributeName: key, KeyType: 'HASH'},
+  ],
+  AttributeDefinitions: [
+    {AttributeName: key, AttributeType: 'S'},
+  ],
+  ProvisionedThroughput: {
+    ReadCapacityUnits: 5,
+    WriteCapacityUnits: 5,
+  },
 };
 
 exports.initialData = () =>
-    [
-        {
-            userId: "19495e34-7e7b-495d-a880-6cd5aafe5a9c",
-            roles: ["super", "user"]
-        }
-    ];
+  [
+    {
+      userId: '19495e34-7e7b-495d-a880-6cd5aafe5a9c',
+      roles: ['super', 'user'],
+    },
+  ];
 
-exports.table = new Table(this);
+exports.table = new Table(module.exports);
 
