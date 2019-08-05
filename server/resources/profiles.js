@@ -1,12 +1,13 @@
 const ResultCodes =require('../resultCodes');
 
+/* eslint-disable require-atomic-updates */
 module.exports = (entity) => {
   const profiles = entity.table;
 
   return {
     index: async function(ctx, next) {
       await next();
-      const query = ctx.dbQuery;
+      let query = ctx.dbQuery;
       if (query && !ctx.dbQuery.isOrdered) {
         query = query.order(true);
       }
@@ -75,7 +76,7 @@ module.exports = (entity) => {
             ctx.body = 'Failed to update profile';
           });
     },
-    destroy: async function(next) {
+    destroy: async function(ctx, next) {
       await next();
       if (!ctx.params.user) {
         ctx.throw(ResultCodes.BadRequest, 'userId required');

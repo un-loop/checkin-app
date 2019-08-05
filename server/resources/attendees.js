@@ -1,20 +1,21 @@
 const ResultCodes = require('../resultCodes');
 const {v4} = require('uuid');
 
+/* eslint-disable require-atomic-updates */
 module.exports = (entity) => {
   const attendees = entity.table;
 
   return {
     index: async function(ctx, next) {
       await next();
-      const query = ctx.dbQuery;
+      let query = ctx.dbQuery;
       if (query && !ctx.dbQuery.isOrdered) {
         query = query.order(true);
       }
 
       ctx.body = ctx.dbQuery ?
-          await attendees.query(query) :
-          await attendees.getAll();
+        await attendees.query(query) :
+        await attendees.getAll();
     },
     show: async function(ctx, next) {
       await next();
@@ -68,7 +69,7 @@ module.exports = (entity) => {
       }
       await attendees.delete(ctx.params.event, ctx.params.attendee);
       ctx.status = ResultCodes.Success;
-      ctx.body = JSON.stringify(attendee);
+      ctx.body = 'Deleted';
     },
   };
 };

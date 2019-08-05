@@ -1,6 +1,7 @@
 const {v4} = require('uuid');
 const ResultCodes =require('../resultCodes');
 
+/* eslint-disable require-atomic-updates */
 module.exports = (entity) => {
   const users = entity.table;
 
@@ -71,7 +72,7 @@ module.exports = (entity) => {
             ctx.body = 'Failed to create user';
           });
     },
-    destroy: async function(next) {
+    destroy: async function(ctx, next) {
       await next();
       if (!ctx.params.user) {
         ctx.throw(ResultCodes.BadRequest, 'userId required');

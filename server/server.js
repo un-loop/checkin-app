@@ -86,6 +86,7 @@ const auth = new Auth({
       return false;
     }
 
+    const now = new Date();
     credentials.expiration =
       process.env.npm_package_config_passwordExpirationDays
       && process.env.npm_package_config_passwordExpirationDays != '0' ?

@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs').promises;
 
+/* eslint-disable require-atomic-updates */
 const pages = {
   401: path.resolve(__dirname, '../error/401.html'),
   403: path.resolve(__dirname, '../error/403.html'),

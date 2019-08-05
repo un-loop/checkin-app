@@ -1,13 +1,14 @@
 const ResultCodes =require('../resultCodes');
 const {v4} = require('uuid');
 
+/* eslint-disable require-atomic-updates */
 module.exports = (entity) => {
   const events = entity.table;
 
   return {
     index: async function(ctx, next) {
       await next();
-      const query = ctx.dbQuery;
+      let query = ctx.dbQuery;
       if (query && !ctx.dbQuery.isOrdered) {
         query = query.order(true);
       }
