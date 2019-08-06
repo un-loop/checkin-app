@@ -1,94 +1,112 @@
-import * as React from "react";
-import { TextValidator} from 'react-material-ui-form-validator';
+import * as React from 'react';
+import PropTypes from 'prop-types';
+import {TextValidator} from 'react-material-ui-form-validator';
 
-import DateTimePicker from "../widgets/DateTimePicker";
-import DialogForm from "../layout/DialogForm";
+import DateTimePicker from '../widgets/DateTimePicker';
+import DialogForm from '../layout/DialogForm';
 
 class EventDetailsForm extends React.Component {
-    constructor(props) {
-        super(props);
+  constructor(props) {
+    super(props);
 
-        let name = "", start = "", eventId = "";
-        if (this.props.event) {
-            name = this.props.event.name;
-            start = this.props.event.start;
-            eventId = this.props.event.eventId;
-        }
-
-        this.state = { name, start, eventId};
-        this.save = this.save.bind(this);
-        this.cancel = this.cancel.bind(this);
-        this.handleInputChange = this.handleInputChange.bind(this);
+    let name = '';
+    let start = '';
+    let eventId = '';
+    if (this.props.event) {
+      name = this.props.event.name;
+      start = this.props.event.start;
+      eventId = this.props.event.eventId;
     }
 
-    save(e) {
-        e.preventDefault();
-        const detail = ({
-            name: this.state.name,
-            start: this.state.start,
-            eventId: this.state.eventId
-        });
-        this.props.onSubmit && this.props.onSubmit(detail);
-    }
+    this.state = {name, start, eventId};
+    this.save = this.save.bind(this);
+    this.cancel = this.cancel.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
+  }
 
-    cancel(e) {
-        e.preventDefault();
-        this.props.onCancel && this.props.onCancel();
-    }
+  save(e) {
+    e.preventDefault();
+    const detail = ({
+      name: this.state.name,
+      start: this.state.start,
+      eventId: this.state.eventId,
+    });
+    this.props.onSubmit && this.props.onSubmit(detail);
+  }
 
-    handleInputChange(name, value) {
-        this.setState({[name]: value});
-    }
+  cancel(e) {
+    e.preventDefault();
+    this.props.onCancel && this.props.onCancel();
+  }
 
-    render() {
-        const {onCancel, onSave, saving, ...props} = this.props;
+  handleInputChange(name, value) {
+    this.setState({[name]: value});
+  }
 
-        const actions = [
-            {
-                label: "Cancel",
-                formAction: "reset",
-                color: "secondary"
-            },
-            {
-                label: "Done",
-                formAction: "submit",
-                color: "primary",
-                loading: saving
-            }
-        ];
+  render() {
+    const {saving, ...props} = this.props;
 
-        props.autoComplete = "off";
-        props.onSubmit = this.save;
-        props.onReset = this.cancel;
-        props.actions = actions;
+    const actions = [
+      {
+        label: 'Cancel',
+        formAction: 'reset',
+        color: 'secondary',
+      },
+      {
+        label: 'Done',
+        formAction: 'submit',
+        color: 'primary',
+        loading: saving,
+      },
+    ];
 
-        return (
-            <DialogForm {...props}>
-                <input name="eventId" type="hidden" value={this.state.eventId} />
-                <TextValidator
-                    id="name"
-                    name="name"
-                    label="Event Name"
-                    placeholder="Event Name"
-                    onChange={ (e) => this.handleInputChange(e.target.name, e.target.value)}
-                    margin="dense"
-                    validators={['required']}
-                    errorMessages={['this field is required']}
-                    withRequiredValidator={true}
-                    value={this.state.name}
-                    autoComplete="off"
-                />
-                <DateTimePicker
-                    id="start"
-                    name="start"
-                    onChange={(e) => this.handleInputChange(e.target.name, e.target.value)}
-                    label={" Event date & time"}
-                    value={this.state.start}
-                    autoComplete="off"
-                />
-            </DialogForm>
-        );
-    }
+    delete props.onSubmit;
+    delete props.onCancel;
+    props.autoComplete = 'off';
+    props.onSubmit = this.save;
+    props.onReset = this.cancel;
+    props.actions = actions;
+
+    return (
+      <DialogForm {...props}>
+        <input name='eventId' type='hidden' value={this.state.eventId} />
+        <TextValidator
+          id='name'
+          name='name'
+          label='Event Name'
+          placeholder='Event Name'
+          onChange={ (e) =>
+            this.handleInputChange(e.target.name, e.target.value)}
+          margin='dense'
+          validators={['required']}
+          errorMessages={['this field is required']}
+          withRequiredValidator={true}
+          value={this.state.name}
+          autoComplete='off'
+        />
+        <DateTimePicker
+          id='start'
+          name='start'
+          onChange={(e) =>
+            this.handleInputChange(e.target.name, e.target.value)}
+          label={' Event date & time'}
+          value={this.state.start}
+          autoComplete='off'
+        />
+      </DialogForm>
+    );
+  }
 }
+
+EventDetailsForm.propTypes = {
+  event: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    start: PropTypes.string.isRequired,
+    eventId: PropTypes.string.isRequired,
+  }),
+  onSubmit: PropTypes.func,
+  onCancel: PropTypes.func,
+  saving: PropTypes.bool,
+};
 
 export default EventDetailsForm;

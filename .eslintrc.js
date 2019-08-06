@@ -22,7 +22,10 @@ module.exports = {
   },
   'plugins': [
     'react',
+    'require-jsdoc-except'
   ],
   'rules': {
+    'require-jsdoc': 'off',
+    'quote-props': 'off'
   },
 };
