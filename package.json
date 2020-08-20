@@ -42,7 +42,7 @@
     "aws-sdk": "^2.499.0",
     "axios": "^0.18.1",
     "babel-loader": "^8.0.5",
-    "bcrypt": "^3.0.5",
+    "bcrypt": "^5.0.0",
     "classnames": "^2.2.6",
     "clsx": "^1.0.4",
     "cookies": "^0.7.3",
