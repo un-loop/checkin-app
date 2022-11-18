@@ -77,7 +77,7 @@
     "unloop-resource-builder": "^2.0.1",
     "unloop-static-router": "^3.0.1",
     "webpack": "^4.37.0",
-    "webpack-cli": "^3.3.6"
+    "webpack-cli": "^3.3.12"
   },
   "devDependencies": {
     "eslint": "^6.1.0",
